@@ -361,23 +361,20 @@ export default function Scene({
           />
 
           <spotLight
-  ref={bedWallLightRef}
-  name="Bed Wall Lamp Glow"
-  castShadow={false}
-  color="#ffd8a6"
-  intensity={0}
-  angle={0.95}
-  penumbra={0.9}
-  distance={950}
-  decay={2}
-  position={[-340, 660, 700]}
-  target-position={[-120, 60, 360]}
-/>
+            ref={bedWallLightRef}
+            name="Bed Wall Lamp Glow"
+            castShadow={false}
+            color="#ffd8a6"
+            intensity={0}
+            angle={0.95}
+            penumbra={0.9}
+            distance={950}
+            decay={2}
+            position={[-340, 660, 700]}
+            target-position={[-120, 60, 360]}
+            />
 
-<mesh position={[-920, 860, 360]}>
-  <sphereGeometry args={[18, 16, 16]} />
-  <meshBasicMaterial color="#ffd8a6" />
-</mesh>
+
         </scene>
       </group>
     </>
