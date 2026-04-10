@@ -7,6 +7,8 @@ import {
   RoundedBox,
 } from "@react-three/drei";
 import { useRef } from "react";
+import useSound from "use-sound";
+import startSoundFile from "../../assets/start.mp3";
 
 function FaceButton({ label, position, rotation, onClick }) {
   return (
@@ -49,6 +51,13 @@ function FaceButton({ label, position, rotation, onClick }) {
 
 function StartCubeMesh({ phase, onStart }) {
   const meshRef = useRef();
+  const [playStart] = useSound(startSoundFile, { volume: 0.4 });
+
+  const handleStartClick = (e) => {
+    e.stopPropagation();
+    playStart();
+    onStart();
+  };
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
@@ -90,13 +99,13 @@ function StartCubeMesh({ phase, onStart }) {
             label="START"
             position={[0, 0, 0.83]}
             rotation={[0, 0, 0]}
-            onClick={onStart}
+            onClick={handleStartClick}
           />
           <FaceButton
             label="START"
             position={[0, 0, -0.83]}
             rotation={[0, Math.PI, 0]}
-            onClick={onStart}
+            onClick={handleStartClick}
           />
         </>
       )}

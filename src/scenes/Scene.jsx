@@ -18,7 +18,7 @@ import Desk from "./objects/Desk";
 import Floor from "./objects/Floor";
 import GithubFrame from "./objects/GithubFrame";
 import LinkedinFrame from "./objects/LinkedinFrame";
-import MacBook from "./objects/MacBook";
+import MacBook from "./objects/Macbook";
 import ObjectCamera from "./objects/ObjectCamera";
 import PictureBigHorizontal from "./objects/PictureBigHorizontal";
 import RecordPlayer from "./objects/RecordPlayer";
@@ -30,7 +30,16 @@ import WallShelf1 from "./objects/WallShelf1";
 import WallShelf2 from "./objects/WallShelf2";
 import WallSide from "./objects/WallSide";
 
-export default function Scene({ externalCameraRef, setSelectedVisionPhoto, setIsRecordOverlayOpen, setCurrentCameraMode, setIsBookOverlayOpen, ...props }) {
+export default function Scene({
+  externalCameraRef,
+  setSelectedVisionPhoto,
+  setIsRecordOverlayOpen,
+  setCurrentCameraMode,
+  setIsBookOverlayOpen,
+  isBookOverlayOpen,
+  colorMode = "light",
+  ...props
+}) {
   const { nodes, materials } = useSpline(
     "https://prod.spline.design/kpR4uM8fzmnT5jFU/scene.splinecode"
   );
@@ -42,15 +51,20 @@ export default function Scene({ externalCameraRef, setSelectedVisionPhoto, setIs
   const tweenGroup = useRef(new TWEEN.Group());
   const isFirstRun = useRef(true);
 
-  useEffect(() => {
-  setCurrentCameraMode?.(cameraMode);
-}, [cameraMode, setCurrentCameraMode]);
+  const mainLightRef = useRef();
+  const ambientLightRef = useRef();
+  const bedLightRef = useRef();
+  const bedWallLightRef = useRef();
 
   useEffect(() => {
-  if (externalCameraRef) {
-    externalCameraRef.current = camera.current;
-  }
-}, [externalCameraRef]);
+    setCurrentCameraMode?.(cameraMode);
+  }, [cameraMode, setCurrentCameraMode]);
+
+  useEffect(() => {
+    if (externalCameraRef) {
+      externalCameraRef.current = camera.current;
+    }
+  }, [externalCameraRef]);
 
   useEffect(() => {
     if (!camera.current || !controls.current) return;
@@ -63,155 +77,179 @@ export default function Scene({ externalCameraRef, setSelectedVisionPhoto, setIs
     controls.current.update();
   }, []);
 
+  useEffect(() => {
+  if (
+    !mainLightRef.current ||
+    !ambientLightRef.current ||
+    !bedLightRef.current ||
+    !bedWallLightRef.current
+  )
+    return;
+
+  if (colorMode === "dark") {
+    mainLightRef.current.intensity = 0.28;
+    ambientLightRef.current.intensity = 0.18;
+    bedLightRef.current.intensity = 1.8;
+    bedWallLightRef.current.intensity = 8;
+  } else {
+    mainLightRef.current.intensity = 0.7;
+    ambientLightRef.current.intensity = 0.75;
+    bedLightRef.current.intensity = 0;
+    bedWallLightRef.current.intensity = 0;
+  }
+}, [colorMode]);
 
   useLayoutEffect(() => {
-  if (!camera.current || !controls.current) return;
+    if (!camera.current || !controls.current) return;
 
-  const cam = camera.current;
-  const ctrl = controls.current;
-  const group = tweenGroup.current;
+    const cam = camera.current;
+    const ctrl = controls.current;
+    const group = tweenGroup.current;
 
-  // 🚨 SKIP FIRST RUN
-  if (isFirstRun.current) {
-    isFirstRun.current = false;
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
 
-    // just snap to default instantly
-    cam.position.set(1020, 960, 1020);
-    ctrl.target.set(0, 250, 0);
-    cam.zoom = 0.46;
+      cam.position.set(1020, 960, 1020);
+      ctrl.target.set(0, 250, 0);
+      cam.zoom = 0.46;
 
-    cam.updateProjectionMatrix();
-    ctrl.update();
-
-    return; // ❌ DO NOT RUN TWEEN
-  }
-
-  group.removeAll();
-
-  let targetPosition;
-  let targetLookAt;
-  let targetRotation;
-  let targetZoom;
-
-  if (cameraMode === "default") {
-    targetPosition = { x: 1020, y: 960, z: 1020 };
-    targetLookAt = { x: 0, y: 250, z: 0 };
-    targetRotation = {
-      x: cam.rotation.x,
-      y: cam.rotation.y,
-      z: cam.rotation.z,
-    };
-    targetZoom = 0.46;
-  } else if (cameraMode === "visionBoard") {
-    targetPosition = { x: 220, y: 420, z: 20 };
-    targetLookAt = { x: -464, y: 420, z: 20 };
-    targetRotation = {
-      x: 0,
-      y: -Math.PI / 2,
-      z: 0,
-    };
-    targetZoom = 2.8;
-  }else if (cameraMode === "recordPlayer") {
-  targetPosition = { x: -200, y: 1090, z: 350 };
-  targetLookAt = { x: -400, y: 220, z: 345 };
-  targetRotation = {
-    x: -Math.PI / 2,
-    y: 0,
-    z: 0,
-  };
-  targetZoom = 5.9;
-} else if (cameraMode === "favoriteBook") {
-  targetPosition = { x: -120, y: 430, z: -563 };
-  targetLookAt = { x: -377, y: 400, z: -563 };
-  targetRotation = {
-    x: 0,
-    y: -Math.PI / 2,
-    z: 0,
-  };
-  targetZoom = 6.5;
-} else if (cameraMode === "macbook") {
-  targetPosition = { x: 50, y: 400, z: 2000 };
-  targetLookAt = { x: 67, y: 297, z: -550 };
-  targetRotation = {
-    x: 0,
-    y: -Math.PI / 2,
-    z: 0,
-  };
-  targetZoom = 9.8;
-}
-
-  if (!targetPosition || !targetLookAt || !targetRotation || targetZoom == null) return;
-
-  ctrl.enabled = false;
-
-  const targetTween = new TWEEN.Tween(
-    { x: ctrl.target.x, y: ctrl.target.y, z: ctrl.target.z },
-    group
-  )
-    .to(targetLookAt, 1400)
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate((obj) => {
-      ctrl.target.set(obj.x, obj.y, obj.z);
-      ctrl.update();
-    });
-
-  const positionTween = new TWEEN.Tween(
-    { x: cam.position.x, y: cam.position.y, z: cam.position.z },
-    group
-  )
-    .to(targetPosition, 1400)
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate((obj) => {
-      cam.position.set(obj.x, obj.y, obj.z);
-      ctrl.update();
-    });
-
-  const rotationTween = new TWEEN.Tween(
-    { x: cam.rotation.x, y: cam.rotation.y, z: cam.rotation.z },
-    group
-  )
-    .to(targetRotation, 1400)
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate((obj) => {
-      cam.rotation.set(obj.x, obj.y, obj.z);
-    });
-
-  const zoomTween = new TWEEN.Tween({ zoom: cam.zoom }, group)
-    .to({ zoom: targetZoom }, 1400)
-    .easing(TWEEN.Easing.Quadratic.InOut)
-    .onUpdate((obj) => {
-      cam.zoom = obj.zoom;
       cam.updateProjectionMatrix();
       ctrl.update();
-    })
-    .onComplete(() => {
+
+      return;
+    }
+
+    group.removeAll();
+
+    let targetPosition;
+    let targetLookAt;
+    let targetRotation;
+    let targetZoom;
+
+    if (cameraMode === "default") {
+      targetPosition = { x: 1020, y: 960, z: 1020 };
+      targetLookAt = { x: 0, y: 250, z: 0 };
+      targetRotation = {
+        x: cam.rotation.x,
+        y: cam.rotation.y,
+        z: cam.rotation.z,
+      };
+      targetZoom = 0.46;
+    } else if (cameraMode === "visionBoard") {
+      targetPosition = { x: 220, y: 420, z: 20 };
+      targetLookAt = { x: -464, y: 420, z: 20 };
+      targetRotation = {
+        x: 0,
+        y: -Math.PI / 2,
+        z: 0,
+      };
+      targetZoom = 2.8;
+    } else if (cameraMode === "recordPlayer") {
+      targetPosition = { x: -200, y: 1090, z: 350 };
+      targetLookAt = { x: -400, y: 220, z: 345 };
+      targetRotation = {
+        x: -Math.PI / 2,
+        y: 0,
+        z: 0,
+      };
+      targetZoom = 5.9;
+    } else if (cameraMode === "favoriteBook") {
+      targetPosition = { x: -120, y: 430, z: -563 };
+      targetLookAt = { x: -377, y: 400, z: -563 };
+      targetRotation = {
+        x: 0,
+        y: -Math.PI / 2,
+        z: 0,
+      };
+      targetZoom = 6.5;
+    } else if (cameraMode === "macbook") {
+      targetPosition = { x: 50, y: 400, z: 2000 };
+      targetLookAt = { x: 67, y: 297, z: -550 };
+      targetRotation = {
+        x: 0,
+        y: -Math.PI / 2,
+        z: 0,
+      };
+      targetZoom = 9.8;
+    }
+
+    if (!targetPosition || !targetLookAt || !targetRotation || targetZoom == null)
+      return;
+
+    ctrl.enabled = false;
+
+    const targetTween = new TWEEN.Tween(
+      { x: ctrl.target.x, y: ctrl.target.y, z: ctrl.target.z },
+      group
+    )
+      .to(targetLookAt, 1400)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onUpdate((obj) => {
+        ctrl.target.set(obj.x, obj.y, obj.z);
+        ctrl.update();
+      });
+
+    const positionTween = new TWEEN.Tween(
+      { x: cam.position.x, y: cam.position.y, z: cam.position.z },
+      group
+    )
+      .to(targetPosition, 1400)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onUpdate((obj) => {
+        cam.position.set(obj.x, obj.y, obj.z);
+        ctrl.update();
+      });
+
+    const rotationTween = new TWEEN.Tween(
+      { x: cam.rotation.x, y: cam.rotation.y, z: cam.rotation.z },
+      group
+    )
+      .to(targetRotation, 1400)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onUpdate((obj) => {
+        cam.rotation.set(obj.x, obj.y, obj.z);
+      });
+
+    const zoomTween = new TWEEN.Tween({ zoom: cam.zoom }, group)
+      .to({ zoom: targetZoom }, 1400)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .onUpdate((obj) => {
+        cam.zoom = obj.zoom;
+        cam.updateProjectionMatrix();
+        ctrl.update();
+      })
+      .onComplete(() => {
+        ctrl.enabled = true;
+        console.log("zoom tween completed");
+      });
+
+    targetTween.start();
+    positionTween.start();
+    rotationTween.start();
+    zoomTween.start();
+
+    console.log("tweens started", group.getAll().length);
+
+    return () => {
+      targetTween.stop();
+      positionTween.stop();
+      rotationTween.stop();
+      zoomTween.stop();
       ctrl.enabled = true;
-      console.log("zoom tween completed");
-    });
+    };
+  }, [cameraMode]);
 
-  targetTween.start();
-  positionTween.start();
-  rotationTween.start();
-  zoomTween.start();
-
-  console.log("tweens started", group.getAll().length);
-
-  return () => {
-    targetTween.stop();
-    positionTween.stop();
-    rotationTween.stop();
-    zoomTween.stop();
-    ctrl.enabled = true;
-  };
-}, [cameraMode]);
-
- useFrame(() => {
-  tweenGroup.current.update();
-});
+  useFrame(() => {
+    tweenGroup.current.update();
+    TWEEN.update();
+  });
 
   return (
     <>
-      <color attach="background" args={["#706880"]} />
+      <color
+        attach="background"
+        args={[colorMode === "dark" ? "#16141f" : "#706880"]}
+      />
 
       <OrbitControls
         ref={controls}
@@ -266,17 +304,20 @@ export default function Scene({ externalCameraRef, setSelectedVisionPhoto, setIs
           <Chair nodes={nodes} materials={materials} />
           <ObjectCamera nodes={nodes} materials={materials} />
           <PictureBigHorizontal nodes={nodes} materials={materials} />
-         <Book1
+
+          <Book1
             nodes={nodes}
             materials={materials}
             cameraMode={cameraMode}
             setCameraMode={setCameraMode}
+            isBookOverlayOpen={isBookOverlayOpen}
             setIsBookOverlayOpen={setIsBookOverlayOpen}
-         />
+          />
 
           <Bed nodes={nodes} materials={materials} />
           <BedLamp nodes={nodes} materials={materials} />
           <BedsideTable nodes={nodes} materials={materials} />
+
           <RecordPlayer
             nodes={nodes}
             materials={materials}
@@ -285,9 +326,9 @@ export default function Scene({ externalCameraRef, setSelectedVisionPhoto, setIs
             setIsRecordOverlayOpen={setIsRecordOverlayOpen}
           />
           <Rug nodes={nodes} materials={materials} />
-         
 
           <directionalLight
+            ref={mainLightRef}
             name="Directional Light"
             castShadow
             intensity={0.7}
@@ -301,11 +342,42 @@ export default function Scene({ externalCameraRef, setSelectedVisionPhoto, setIs
             shadow-camera-bottom={-1000}
             position={[200, 300, 300]}
           />
+
           <hemisphereLight
+            ref={ambientLightRef}
             name="Default Ambient Light"
             intensity={0.75}
             color="#eaeaea"
           />
+
+          <pointLight
+            ref={bedLightRef}
+            name="Bed Light Glow"
+            color="#ffd59e"
+            intensity={0}
+            distance={850}
+            decay={2}
+            position={[-360, 330, -470]}
+          />
+
+          <spotLight
+  ref={bedWallLightRef}
+  name="Bed Wall Lamp Glow"
+  castShadow={false}
+  color="#ffd8a6"
+  intensity={0}
+  angle={0.95}
+  penumbra={0.9}
+  distance={950}
+  decay={2}
+  position={[-340, 660, 700]}
+  target-position={[-120, 60, 360]}
+/>
+
+<mesh position={[-920, 860, 360]}>
+  <sphereGeometry args={[18, 16, 16]} />
+  <meshBasicMaterial color="#ffd8a6" />
+</mesh>
         </scene>
       </group>
     </>

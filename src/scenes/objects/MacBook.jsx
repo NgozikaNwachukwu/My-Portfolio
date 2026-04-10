@@ -1,4 +1,4 @@
-import { useRef, useState, useLayoutEffect } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as TWEEN from "@tweenjs/tween.js";
@@ -7,114 +7,183 @@ import useSound from "use-sound";
 import hoverOverSoundFile from "../../assets/hover_over_object.mp3";
 import swooshInSoundFile from "../../assets/zoom_in.mp3";
 import swooshOutSoundFile from "../../assets/zoom_out.mp3";
+import macStartupSoundFile from "../../assets/mac_startup.mp3";
 
 const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
-  const macbookRef = useRef();
-const hoverTweenGroup = useRef(new TWEEN.Group());
+  const visualRef = useRef();
+  const labelRef = useRef();
+  const hoverTweenGroup = useRef(new TWEEN.Group());
+  const hoveredRef = useRef(false);
 
   const [hovered, setHovered] = useState(false);
+  const [showScreen, setShowScreen] = useState(false);
 
   const [playHover] = useSound(hoverOverSoundFile, { volume: 0.35 });
   const [playSwooshIn] = useSound(swooshInSoundFile, { volume: 0.35 });
   const [playSwooshOut] = useSound(swooshOutSoundFile, { volume: 0.35 });
+  const [playStartup] = useSound(macStartupSoundFile, { volume: 0.5 });
 
-    useLayoutEffect(() => {
-  console.log("MAC useLayoutEffect ran", {
-    hasRef: !!macbookRef.current,
-    hovered,
-    cameraMode,
-  });
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data === "HIDE_SCREEN") {
+        setShowScreen(false);
+      }
+    };
 
-  if (!macbookRef.current) return;
+    window.addEventListener("message", handleMessage);
 
-  hoverTweenGroup.current.removeAll();
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
 
-  const targetScale =
-    cameraMode === "default" && hovered
-      ? { x: 0.30, y: 0.35, z: 0.30 }
-      : { x: 0.25, y: 0.27, z: 0.23 };
+  useLayoutEffect(() => {
+  if (!visualRef.current) return;
 
-  console.log("MAC tween targetScale", targetScale);
+    if (labelRef.current) {
+      if (hovered && cameraMode === "default") {
+        labelRef.current.classList.add("active");
+      } else {
+        labelRef.current.classList.remove("active");
+      }
+    }
 
-  const tween = new TWEEN.Tween(
-    {
-      x: macbookRef.current.scale.x,
-      y: macbookRef.current.scale.y,
-      z: macbookRef.current.scale.z,
-    },
-    hoverTweenGroup.current
-  )
-    .to(targetScale, 220)
-    .easing(TWEEN.Easing.Quadratic.Out)
-    .onStart(() => {
-      console.log("MAC tween started");
-    })
-    .onUpdate((obj) => {
-      macbookRef.current.scale.set(obj.x, obj.y, obj.z);
-    })
-    .onComplete(() => {
-      console.log("MAC tween completed");
-    });
+    hoverTweenGroup.current.removeAll();
 
-  tween.start();
+    const targetScale =
+      cameraMode === "default" && hovered
+        ? { x: 0.30, y: 0.35, z: 0.30 }
+        : { x: 0.25, y: 0.27, z: 0.23 };
 
-  return () => {
-    console.log("MAC tween cleanup");
-    tween.stop();
-  };
-}, [hovered, cameraMode]);
+    const tween = new TWEEN.Tween(
+      {
+        x: visualRef.current.scale.x,
+        y: visualRef.current.scale.y,
+        z: visualRef.current.scale.z,
+      },
+      hoverTweenGroup.current
+    )
+      .to(targetScale, 220)
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .onUpdate((obj) => {
+        visualRef.current.scale.set(obj.x, obj.y, obj.z);
+      });
+
+    tween.start();
+
+    return () => {
+      tween.stop();
+    };
+  }, [hovered, cameraMode]);
+
+  useLayoutEffect(() => {
+    if (cameraMode !== "default") {
+      hoveredRef.current = false;
+      setHovered(false);
+    }
+  }, [cameraMode]);
 
   useFrame(() => {
     hoverTweenGroup.current.update();
   });
-  
+
+  const handlePointerEnter = (e) => {
+    e.stopPropagation();
+
+    if (cameraMode !== "default") return;
+    if (hoveredRef.current) return;
+
+    hoveredRef.current = true;
+    setHovered(true);
+    playHover();
+  };
+
+  const handlePointerLeave = (e) => {
+    e.stopPropagation();
+
+    if (cameraMode !== "default") return;
+    if (!hoveredRef.current) return;
+
+    hoveredRef.current = false;
+    setHovered(false);
+  };
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+
+    if (cameraMode !== "default") return;
+
+    hoveredRef.current = false;
+    setHovered(false);
+
+    setCameraMode("macbook");
+    playSwooshIn();
+
+    setShowScreen(false);
+
+    setTimeout(() => {
+      setShowScreen(true);
+    }, 900);
+
+    setTimeout(() => {
+      playStartup();
+    }, 3900);
+  };
+
+  const handlePointerMissed = () => {
+    if (cameraMode === "macbook") {
+      setCameraMode("default");
+      playSwooshOut();
+    }
+  };
+
   return (
     <>
       <group
-  ref={macbookRef}
-  name="macbook"
+  name="macbook_wrapper"
   position={[66.63, 244.77, -550.33]}
-  scale={[0.25, 0.27, 0.23]}
-  onPointerEnter={(e) => {
-  console.log("MAC hover enter fired", { cameraMode });
-  e.stopPropagation();
-  if (cameraMode === "default") {
-    setHovered(true);
-    playHover();
-  }
-}}
-onPointerLeave={(e) => {
-  console.log("MAC hover leave fired", { cameraMode });
-  e.stopPropagation();
-  if (cameraMode === "default") {
-    setHovered(false);
-  }
-}}
-onClick={(e) => {
-  console.log("MAC click fired", { cameraMode });
-  e.stopPropagation();
-  if (cameraMode === "default") {
-    console.log("SETTING cameraMode -> macbook");
-    setCameraMode("macbook");
-    setHovered(false);
-    playSwooshIn();
-  }
-}}
-onPointerMissed={() => {
-  console.log("MAC pointer missed fired", { cameraMode });
-  if (cameraMode === "macbook") {
-    console.log("SETTING cameraMode -> default");
-    setCameraMode("default");
-    playSwooshOut();
-  }
-}}
+  onPointerMissed={handlePointerMissed}
 >
-  {hovered && cameraMode === "default" && (
-  <Html position={[690, 790, 0]} distanceFactor={3} center>
-    <div className="label label--secondary active">Projects & Resume 💻</div>
-  </Html>
-)}
-          
+        <Html position={[290, 290, 0]} distanceFactor={3} center>
+          <div ref={labelRef} className="label label--secondary">
+            About Me & Projects💻
+          </div>
+        </Html>
+
+        <mesh
+  name="macbook_hitbox"
+  position={[0, 30, 0]}
+  onPointerEnter={handlePointerEnter}
+  onPointerLeave={handlePointerLeave}
+  onClick={handleClick}
+>
+  <boxGeometry args={[100, 100, 100]} />
+  <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+</mesh>
+
+<group ref={visualRef} name="macbook" scale={[0.25, 0.27, 0.23]}>
+
+        {cameraMode === "macbook" && showScreen && (
+          <Html
+            transform
+            position={[0.5, 190, -100]}
+            rotation={[-Math.PI / 9, 0, 0]}
+            scale={26.5}
+            zIndexRange={[100, 0]}
+          >
+            <iframe
+              src="/macbook"
+              style={{
+                width: "800px",
+                height: "500px",
+                border: "none",
+                borderRadius: "12px",
+                background: "transparent",
+              }}
+            />
+          </Html>
+        )}
+
             <group name="screen" position={[0.5, 10.73, -120.95]} rotation={[-Math.PI / 9, 0, 0]}>
               <group name="logo" position={[2.73, 193.99, -3.03]}>
                 <mesh
@@ -8107,6 +8176,7 @@ onPointerMissed={() => {
                 </group>
               </group>
             </group>
+          </group>
           </group>
           
     </>

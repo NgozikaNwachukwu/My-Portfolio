@@ -1,13 +1,16 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useRef } from "react";
 import { Loader } from "@react-three/drei";
+import { Howler } from "howler";
 import useSound from "use-sound";
 import Scene from "./Scene";
 import roomPop from "../assets/room_pop.mp3";
+import lightsOnOrOff from "../assets/lights_on_or_off.mp3";
 import { useState } from "react";
 import VisionBoardOverlay from "../components/VisionBoardOverlay";
 import RecordPlayerOverlay from "../components/RecordPlayerOverlay";
 import FavoriteBookOverlay from "../components/FavoriteBookOverlay";
+import PopupMessages from "../components/PopupMessages";
 import song from "../assets/song.mp3";
 
 function SceneReadySound({ onReady }) {
@@ -37,12 +40,16 @@ function SceneReadySound({ onReady }) {
 
 export default function PortfolioCanvas({ onBackToStart }) {
   const sceneCameraRef = useRef(null);
+  const isMobile = window.innerWidth < 768;
   const [selectedVisionPhoto, setSelectedVisionPhoto] = useState(null);
   const [isRecordOverlayOpen, setIsRecordOverlayOpen] = useState(false);
   const [currentCameraMode, setCurrentCameraMode] = useState("default");
   const [isBookOverlayOpen, setIsBookOverlayOpen] = useState(false);
+  const [colorMode, setColorMode] = useState("light");
 
   const [playRoomPop] = useSound(roomPop, { volume: 0.45 });
+  const [playLightsToggle] = useSound(lightsOnOrOff, { volume: 0.5 });
+
   useEffect(() => {
   if (currentCameraMode === "recordPlayer") {
     const timer = setTimeout(() => {
@@ -67,6 +74,30 @@ useEffect(() => {
   }
 }, [currentCameraMode]);
 
+useEffect(() => {
+  const unlockAudio = async () => {
+    try {
+      if (Howler.ctx && Howler.ctx.state === "suspended") {
+        await Howler.ctx.resume();
+      }
+    } catch (error) {
+      console.log("Audio unlock failed:", error);
+    }
+  };
+
+  unlockAudio();
+
+  window.addEventListener("pointerdown", unlockAudio, { once: true });
+  window.addEventListener("touchstart", unlockAudio, { once: true });
+  window.addEventListener("keydown", unlockAudio, { once: true });
+
+  return () => {
+    window.removeEventListener("pointerdown", unlockAudio);
+    window.removeEventListener("touchstart", unlockAudio);
+    window.removeEventListener("keydown", unlockAudio);
+  };
+}, []);
+
   const handleZoomIn = () => {
     const cam = sceneCameraRef.current;
     if (!cam) return;
@@ -82,6 +113,12 @@ useEffect(() => {
     cam.zoom = Math.max(cam.zoom - 0.15, 0.2);
     cam.updateProjectionMatrix();
   };
+
+  const handleColorModeToggle = () => {
+    setColorMode((prev) => (prev === "light" ? "dark" : "light"));
+    playLightsToggle();
+  };
+
 
   const sharedButtonStyle = {
     position: "absolute",
@@ -151,6 +188,24 @@ useEffect(() => {
           Back to Start
         </button>
 
+        <button
+          onClick={handleColorModeToggle}
+          style={{
+            ...sharedButtonStyle,
+            right: "24px",
+            bottom: "22px",
+            fontSize: "20px",
+          }}
+          aria-label={
+            colorMode === "light" ? "Activate dark mode" : "Activate light mode"
+          }
+          title={
+            colorMode === "light" ? "Activate dark mode" : "Activate light mode"
+          }
+        >
+          {colorMode === "light" ? "☀️" : "🌙"}
+        </button>
+
         <Canvas
           className="r3f"
           gl={{ antialias: true }}
@@ -165,12 +220,16 @@ useEffect(() => {
                setIsRecordOverlayOpen={setIsRecordOverlayOpen}
                setIsBookOverlayOpen={setIsBookOverlayOpen}
                setCurrentCameraMode={setCurrentCameraMode}
+               colorMode={colorMode}
               
             />
             <SceneReadySound onReady={playRoomPop} />
           </Suspense>
         </Canvas>
       </div>
+
+      <PopupMessages currentCameraMode={currentCameraMode} />
+
        <VisionBoardOverlay
         photo={selectedVisionPhoto}
         onClose={() => setSelectedVisionPhoto(null)}
