@@ -40,15 +40,23 @@ function SceneReadySound({ onReady }) {
 
 export default function PortfolioCanvas({ onBackToStart }) {
   const sceneCameraRef = useRef(null);
-  const isMobile = window.innerWidth < 768;
   const [selectedVisionPhoto, setSelectedVisionPhoto] = useState(null);
   const [isRecordOverlayOpen, setIsRecordOverlayOpen] = useState(false);
   const [currentCameraMode, setCurrentCameraMode] = useState("default");
   const [isBookOverlayOpen, setIsBookOverlayOpen] = useState(false);
   const [colorMode, setColorMode] = useState("light");
-
   const [playRoomPop] = useSound(roomPop, { volume: 0.45 });
   const [playLightsToggle] = useSound(lightsOnOrOff, { volume: 0.5 });
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth < 768);
+  };
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
 
   useEffect(() => {
   if (currentCameraMode === "recordPlayer") {
@@ -221,6 +229,7 @@ useEffect(() => {
                setIsBookOverlayOpen={setIsBookOverlayOpen}
                setCurrentCameraMode={setCurrentCameraMode}
                colorMode={colorMode}
+               isMobile={isMobile}
               
             />
             <SceneReadySound onReady={playRoomPop} />

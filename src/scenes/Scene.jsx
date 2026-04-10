@@ -38,6 +38,7 @@ export default function Scene({
   setIsBookOverlayOpen,
   isBookOverlayOpen,
   colorMode = "light",
+  isMobile,
   ...props
 }) {
   const { nodes, materials } = useSpline(
@@ -111,7 +112,7 @@ export default function Scene({
 
       cam.position.set(1020, 960, 1020);
       ctrl.target.set(0, 250, 0);
-      cam.zoom = 0.46;
+      cam.zoom = isMobile ? 0.35 : 0.46;
 
       cam.updateProjectionMatrix();
       ctrl.update();
@@ -134,7 +135,7 @@ export default function Scene({
         y: cam.rotation.y,
         z: cam.rotation.z,
       };
-      targetZoom = 0.46;
+      targetZoom = isMobile ? 0.35 : 0.46;
     } else if (cameraMode === "visionBoard") {
       targetPosition = { x: 220, y: 420, z: 20 };
       targetLookAt = { x: -464, y: 420, z: 20 };
@@ -237,7 +238,7 @@ export default function Scene({
       zoomTween.stop();
       ctrl.enabled = true;
     };
-  }, [cameraMode]);
+  }, [cameraMode, isMobile]);
 
   useFrame(() => {
     tweenGroup.current.update();
