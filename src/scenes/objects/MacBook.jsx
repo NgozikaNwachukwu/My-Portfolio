@@ -9,7 +9,7 @@ import swooshInSoundFile from "../../assets/zoom_in.mp3";
 import swooshOutSoundFile from "../../assets/zoom_out.mp3";
 import macStartupSoundFile from "../../assets/mac_startup.mp3";
 
-const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
+const MacBook = ({ nodes, materials, cameraMode, setCameraMode, isMobile = false }) => {
   const visualRef = useRef();
   const labelRef = useRef();
   const hoverTweenGroup = useRef(new TWEEN.Group());
@@ -37,11 +37,11 @@ const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
     };
   }, []);
 
-  useLayoutEffect(() => {
-  if (!visualRef.current) return;
+    useLayoutEffect(() => {
+    if (!visualRef.current) return;
 
     if (labelRef.current) {
-      if (hovered && cameraMode === "default") {
+      if (!isMobile && hovered && cameraMode === "default") {
         labelRef.current.classList.add("active");
       } else {
         labelRef.current.classList.remove("active");
@@ -50,10 +50,16 @@ const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
 
     hoverTweenGroup.current.removeAll();
 
-    const targetScale =
-      cameraMode === "default" && hovered
-        ? { x: 0.30, y: 0.35, z: 0.30 }
-        : { x: 0.25, y: 0.27, z: 0.23 };
+    let targetScale;
+
+    if (isMobile && cameraMode === "default") {
+      targetScale = { x: 0.25, y: 0.27, z: 0.23 };
+    } else {
+      targetScale =
+        cameraMode === "default" && hovered
+          ? { x: 0.30, y: 0.35, z: 0.30 }
+          : { x: 0.25, y: 0.27, z: 0.23 };
+    }
 
     const tween = new TWEEN.Tween(
       {
@@ -74,7 +80,7 @@ const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
     return () => {
       tween.stop();
     };
-  }, [hovered, cameraMode]);
+  }, [hovered, cameraMode, isMobile]);
 
   useLayoutEffect(() => {
     if (cameraMode !== "default") {
@@ -83,13 +89,25 @@ const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
     }
   }, [cameraMode]);
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     hoverTweenGroup.current.update();
+
+    if (visualRef.current && isMobile && cameraMode === "default") {
+      const t = clock.getElapsedTime();
+      const bounce = 1 + Math.sin(t * 2) * 0.28;
+
+      visualRef.current.scale.set(
+        0.25 * bounce,
+        0.27 * bounce,
+        0.23 * bounce
+      );
+    }
   });
 
   const handlePointerEnter = (e) => {
     e.stopPropagation();
 
+    if (isMobile) return;
     if (cameraMode !== "default") return;
     if (hoveredRef.current) return;
 
@@ -101,6 +119,7 @@ const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
   const handlePointerLeave = (e) => {
     e.stopPropagation();
 
+    if (isMobile) return;
     if (cameraMode !== "default") return;
     if (!hoveredRef.current) return;
 
@@ -166,7 +185,7 @@ const MacBook = ({ nodes, materials, cameraMode, setCameraMode }) => {
         {cameraMode === "macbook" && showScreen && (
           <Html
             transform
-            position={[0.5, 190, -100]}
+            position={[0.5, 193, -100]}
             rotation={[-Math.PI / 9, 0, 0]}
             scale={26.5}
             zIndexRange={[100, 0]}

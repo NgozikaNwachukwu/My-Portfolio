@@ -16,6 +16,7 @@ const RecordPlayer = ({
   cameraMode,
   setCameraMode,
   setIsRecordOverlayOpen,
+  isMobile = false,
 }) => {
   const recordRef = useRef();
   const visualRef = useRef();
@@ -58,7 +59,7 @@ const RecordPlayer = ({
     if (!visualRef.current) return;
 
     if (playerHtmlRef.current) {
-      if (cameraMode === "default" && hovered) {
+      if (!isMobile && cameraMode === "default" && hovered) {
         playerHtmlRef.current.classList.add("active");
       } else {
         playerHtmlRef.current.classList.remove("active");
@@ -67,10 +68,16 @@ const RecordPlayer = ({
 
     hoverTweenGroup.current.removeAll();
 
-    const targetScale =
-      cameraMode === "default" && hovered
-        ? { x: 0.37, y: 0.68, z: 0.37 }
-        : { x: 0.29, y: 0.58, z: 0.29 };
+    let targetScale;
+
+    if (isMobile && cameraMode === "default") {
+      targetScale = { x: 0.29, y: 0.58, z: 0.29 };
+    } else {
+      targetScale =
+        cameraMode === "default" && hovered
+          ? { x: 0.37, y: 0.68, z: 0.37 }
+          : { x: 0.29, y: 0.58, z: 0.29 };
+    }
 
     const tween = new TWEEN.Tween(
       {
@@ -91,7 +98,7 @@ const RecordPlayer = ({
     return () => {
       tween.stop();
     };
-  }, [hovered, cameraMode]);
+  }, [hovered, cameraMode, isMobile]);
 
   useLayoutEffect(() => {
     if (cameraMode !== "default") {
@@ -100,17 +107,29 @@ const RecordPlayer = ({
     }
   }, [cameraMode]);
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
     hoverTweenGroup.current.update();
 
     if (recordRef.current) {
       recordRef.current.rotation.y -= 0.05;
+    }
+
+    if (visualRef.current && isMobile && cameraMode === "default") {
+      const t = clock.getElapsedTime();
+      const bounce = 1 + Math.sin(t * 3) * 0.28;
+
+      visualRef.current.scale.set(
+        0.29 * bounce,
+        0.58 * bounce,
+        0.29 * bounce
+      );
     }
   });
 
   const handlePointerEnter = (e) => {
     e.stopPropagation();
 
+    if (isMobile) return;
     if (cameraMode !== "default") return;
     if (hoveredRef.current) return;
 
@@ -122,6 +141,7 @@ const RecordPlayer = ({
   const handlePointerLeave = (e) => {
     e.stopPropagation();
 
+    if (isMobile) return;
     if (cameraMode !== "default") return;
     if (!hoveredRef.current) return;
 
@@ -169,7 +189,7 @@ const RecordPlayer = ({
           onPointerLeave={handlePointerLeave}
           onClick={handleClick}
         >
-          <boxGeometry args={[140, 50, 100]} />
+          <boxGeometry args={[120, 40, 90]} />
           <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
 

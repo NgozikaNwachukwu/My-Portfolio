@@ -7,7 +7,7 @@ import "../../index.css";
 
 import hoverOverSoundFile from "../../assets/hover_over_object.mp3";
 
-const LinkedInFrame = ({ nodes, materials }) => {
+const LinkedInFrame = ({ nodes, materials, isMobile = false }) => {
   const visualRef = useRef();
   const labelRef = useRef();
   const hoverTweenGroup = useRef(new TWEEN.Group());
@@ -16,63 +16,85 @@ const LinkedInFrame = ({ nodes, materials }) => {
   const [hovered, setHovered] = useState(false);
 
   const [playHover] = useSound(hoverOverSoundFile, { volume: 0.35 });
+useLayoutEffect(() => {
+  if (!visualRef.current) return;
 
-  useLayoutEffect(() => {
-    if (!visualRef.current) return;
-
-    if (labelRef.current) {
-      if (hovered) {
-        labelRef.current.classList.add("active");
-      } else {
-        labelRef.current.classList.remove("active");
-      }
+  if (labelRef.current) {
+    if (!isMobile && hovered) {
+      labelRef.current.classList.add("active");
+    } else {
+      labelRef.current.classList.remove("active");
     }
+  }
 
-    hoverTweenGroup.current.removeAll();
+  hoverTweenGroup.current.removeAll();
 
-    const targetScale = hovered
+  let targetScale;
+
+  if (isMobile) {
+    targetScale = { x: 1, y: 1, z: 1 };
+  } else {
+    targetScale = hovered
       ? { x: 1.2, y: 1.2, z: 1.2 }
       : { x: 1, y: 1, z: 1 };
+  }
 
-    const tween = new TWEEN.Tween(
-      {
-        x: visualRef.current.scale.x,
-        y: visualRef.current.scale.y,
-        z: visualRef.current.scale.z,
-      },
-      hoverTweenGroup.current
-    )
-      .to(targetScale, 220)
-      .easing(TWEEN.Easing.Quadratic.Out)
-      .onUpdate((obj) => {
-        visualRef.current.scale.set(obj.x, obj.y, obj.z);
-      });
+  const tween = new TWEEN.Tween(
+    {
+      x: visualRef.current.scale.x,
+      y: visualRef.current.scale.y,
+      z: visualRef.current.scale.z,
+    },
+    hoverTweenGroup.current
+  )
+    .to(targetScale, 220)
+    .easing(TWEEN.Easing.Quadratic.Out)
+    .onUpdate((obj) => {
+      visualRef.current.scale.set(obj.x, obj.y, obj.z);
+    });
 
-    tween.start();
+  tween.start();
 
-    return () => tween.stop();
-  }, [hovered]);
-
-  useFrame(() => {
-    hoverTweenGroup.current.update();
-  });
-
-  const handlePointerEnter = (e) => {
-    e.stopPropagation();
-    if (hoveredRef.current) return;
-
-    hoveredRef.current = true;
-    setHovered(true);
-    playHover();
+  return () => {
+    tween.stop();
   };
+}, [hovered, isMobile]);
 
-  const handlePointerLeave = (e) => {
-    e.stopPropagation();
-    if (!hoveredRef.current) return;
+useFrame(({ clock }) => {
+  hoverTweenGroup.current.update();
 
-    hoveredRef.current = false;
-    setHovered(false);
-  };
+  if (visualRef.current && isMobile) {
+    const t = clock.getElapsedTime();
+    const bounce = 1 + Math.sin(t * 2.2) * 0.25;
+
+    visualRef.current.scale.set(
+      1 * bounce,
+      1 * bounce,
+      1 * bounce
+    );
+  }
+});
+
+const handlePointerEnter = (e) => {
+  e.stopPropagation();
+
+  if (isMobile) return;
+  if (hoveredRef.current) return;
+
+  hoveredRef.current = true;
+  setHovered(true);
+  playHover();
+};
+
+const handlePointerLeave = (e) => {
+  e.stopPropagation();
+
+  if (isMobile) return;
+  if (!hoveredRef.current) return;
+
+  hoveredRef.current = false;
+  setHovered(false);
+};
 
   const handleClick = (e) => {
     e.stopPropagation();

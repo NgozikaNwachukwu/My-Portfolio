@@ -71,7 +71,7 @@ export default function Scene({
     if (!camera.current || !controls.current) return;
 
     camera.current.position.set(1020, 960, 1020);
-    camera.current.zoom = 0.46;
+    camera.current.zoom = isMobile ? 0.25 : 0.46;
     camera.current.updateProjectionMatrix();
 
     controls.current.target.set(0, 250, 0);
@@ -112,7 +112,7 @@ export default function Scene({
 
       cam.position.set(1020, 960, 1020);
       ctrl.target.set(0, 250, 0);
-      cam.zoom = isMobile ? 0.35 : 0.46;
+      cam.zoom = isMobile ? 0.25 : 0.46;
 
       cam.updateProjectionMatrix();
       ctrl.update();
@@ -135,7 +135,7 @@ export default function Scene({
         y: cam.rotation.y,
         z: cam.rotation.z,
       };
-      targetZoom = isMobile ? 0.35 : 0.46;
+      targetZoom = isMobile ? 0.25 : 0.46;
     } else if (cameraMode === "visionBoard") {
       targetPosition = { x: 220, y: 420, z: 20 };
       targetLookAt = { x: -464, y: 420, z: 20 };
@@ -153,7 +153,7 @@ export default function Scene({
         y: 0,
         z: 0,
       };
-      targetZoom = 5.9;
+      targetZoom = isMobile ? 3.4 : 5.9;
     } else if (cameraMode === "favoriteBook") {
       targetPosition = { x: -120, y: 430, z: -563 };
       targetLookAt = { x: -377, y: 400, z: -563 };
@@ -162,7 +162,7 @@ export default function Scene({
         y: -Math.PI / 2,
         z: 0,
       };
-      targetZoom = 6.5;
+      targetZoom = isMobile ? 4.5 : 6.5;
     } else if (cameraMode === "macbook") {
       targetPosition = { x: 50, y: 400, z: 2000 };
       targetLookAt = { x: 67, y: 297, z: -550 };
@@ -171,7 +171,7 @@ export default function Scene({
         y: -Math.PI / 2,
         z: 0,
       };
-      targetZoom = 9.8;
+      targetZoom = isMobile ? 3.3 : 9.8;
     }
 
     if (!targetPosition || !targetLookAt || !targetRotation || targetZoom == null)
@@ -287,8 +287,8 @@ export default function Scene({
             setCameraMode={setCameraMode}
             setSelectedVisionPhoto={setSelectedVisionPhoto}
           />
-          <GithubFrame nodes={nodes} materials={materials} />
-          <LinkedinFrame nodes={nodes} materials={materials} />
+          <GithubFrame nodes={nodes} materials={materials} isMobile={isMobile} />
+          <LinkedinFrame nodes={nodes} materials={materials} isMobile={isMobile} />
 
           <BigWhiteShelf nodes={nodes} materials={materials} />
           <SmallWhiteShelf nodes={nodes} materials={materials} />
@@ -301,6 +301,7 @@ export default function Scene({
             materials={materials}
             cameraMode={cameraMode}
             setCameraMode={setCameraMode}
+            isMobile={isMobile}
           />
           <Chair nodes={nodes} materials={materials} />
           <ObjectCamera nodes={nodes} materials={materials} />
@@ -313,6 +314,7 @@ export default function Scene({
             setCameraMode={setCameraMode}
             isBookOverlayOpen={isBookOverlayOpen}
             setIsBookOverlayOpen={setIsBookOverlayOpen}
+            isMobile={isMobile}
           />
 
           <Bed nodes={nodes} materials={materials} />
@@ -325,6 +327,7 @@ export default function Scene({
             cameraMode={cameraMode}
             setCameraMode={setCameraMode}
             setIsRecordOverlayOpen={setIsRecordOverlayOpen}
+            isMobile={isMobile}
           />
           <Rug nodes={nodes} materials={materials} />
 
