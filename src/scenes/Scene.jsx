@@ -18,7 +18,7 @@ import Desk from "./objects/Desk";
 import Floor from "./objects/Floor";
 import GithubFrame from "./objects/GithubFrame";
 import LinkedinFrame from "./objects/LinkedinFrame";
-import MacBook from "./objects/Macbook";
+import MacBook from "./objects/MacBook";
 import ObjectCamera from "./objects/ObjectCamera";
 import PictureBigHorizontal from "./objects/PictureBigHorizontal";
 import RecordPlayer from "./objects/RecordPlayer";
