@@ -172,7 +172,7 @@ export default function Scene({
         y: -Math.PI / 2,
         z: 0,
       };
-      targetZoom = isMobile ? 3.3 : 9.8;
+      targetZoom = isMobile ? 3.3 : 9.2;
     }
 
     if (!targetPosition || !targetLookAt || !targetRotation || targetZoom == null)

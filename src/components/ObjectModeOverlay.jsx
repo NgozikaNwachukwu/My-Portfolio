@@ -22,7 +22,9 @@ export default function ObjectModeOverlay({
     'Once done viewing this feature, click anywhere outside this object to return to the full room.',
   ]
   : isVisionBoardDesktop
-  ? ["Click anywhere outside the vision board to return to the full room."]
+  ? ["Click anywhere outside the vision board to return to the full room.",
+     "Hover over and click on the picture frames to view them!",
+  ]
   : [
       "Sorry, this feature is currently available on desktop only.",
       "For the full Vision Board experience, please open this portfolio on a computer.",

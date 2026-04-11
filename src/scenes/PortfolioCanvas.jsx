@@ -102,7 +102,7 @@ export default function PortfolioCanvas({ onBackToStart }) {
         recordPlayerOpenTimerRef.current = setTimeout(() => {
           setIsRecordOverlayOpen(true);
         }, 120);
-      }, 3700);
+      }, 4300);
     }, 1400);
 
     return () => {
@@ -184,7 +184,7 @@ useEffect(() => {
 
       macbookHintTimerRef.current = setTimeout(() => {
         setShowMacbookOverlayHint(false);
-      }, 3800);
+      }, 4300);
     }, 5900);
 
     return () => {
@@ -337,7 +337,7 @@ useEffect(() => {
 
     visionBoardDesktopOverlayTimerRef.current = setTimeout(() => {
       setShowVisionBoardDesktopOverlay(false);
-    }, 3600);
+    }, 4600);
   }, 1450);
 
   return () => {
