@@ -102,7 +102,7 @@ export default function PortfolioCanvas({ onBackToStart }) {
         recordPlayerOpenTimerRef.current = setTimeout(() => {
           setIsRecordOverlayOpen(true);
         }, 120);
-      }, 6500);
+      }, 3700);
     }, 1400);
 
     return () => {
@@ -148,7 +148,7 @@ useEffect(() => {
         favoriteBookOpenTimerRef.current = setTimeout(() => {
           setIsBookOverlayOpen(true);
         }, 120);
-      }, 5500);
+      }, 3600);
     }, 1400);
 
     return () => {
@@ -184,7 +184,7 @@ useEffect(() => {
 
       macbookHintTimerRef.current = setTimeout(() => {
         setShowMacbookOverlayHint(false);
-      }, 5500);
+      }, 3800);
     }, 5900);
 
     return () => {

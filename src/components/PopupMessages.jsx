@@ -58,6 +58,15 @@ const messages = [
     id: 6,
     content: <>View my projects and resume on the MacBook 👩🏽‍💻</>,
   },
+
+  {
+    id: 7,
+    content: <>Make sure to take your device off silent 📳, and increase the volume 🔊 to enjoy the sounds!📱 💻 </>,
+  },
+  {
+    id: 8,
+    content: <>⚠️On Mobile Mode📱 some features take longer to load, please be patient⚠️ </>,
+  },
 ];
 
 export default function PopupMessages({
@@ -71,7 +80,7 @@ export default function PopupMessages({
   const timersRef = useRef([]);
   const shownMessageIdsRef = useRef([]);
 
-  const [playPopupSound] = useSound(popupSound, { volume: 0.45 });
+  const [playPopupSound] = useSound(popupSound, { volume: 0.35 });
 
   const clearAllTimers = () => {
     timersRef.current.forEach(clearTimeout);
@@ -132,9 +141,9 @@ export default function PopupMessages({
 
       const nextCycleTimer = setTimeout(() => {
         if (currentCameraMode === "default" && !overlaysBlocked) {
-          runPopupCycle(15000);
+          runPopupCycle(8000);
         }
-      }, 20000);
+      }, 14000);
 
       timersRef.current.push(enterTimer, exitTimer, removeTimer, nextCycleTimer);
     }, delayBeforeShow);
