@@ -11,7 +11,7 @@ export default function PortfolioOverlay({ type = "welcome", isMobile = false })
     "Please use Chrome browser for the best experience.",
     "Objects that are moving in the room can be tapped on.",
     "Short on time? Tap straight on the MacBook! 💻  it has everything you need to know.",
-    "Look out for popup messages that give you more tips on different features about the room 💬",
+    "Look up ⬆️  for popup messages that give you more tips on different features about the room 💬",
     "Once you're done reading this, tap the screen and enjoy!",
   ];
 
