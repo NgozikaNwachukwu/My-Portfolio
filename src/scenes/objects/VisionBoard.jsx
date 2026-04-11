@@ -65,10 +65,20 @@ const milestoneData = {
   },
 };
 
-const VisionBoard = ({ nodes, materials, cameraMode, setCameraMode, setSelectedVisionPhoto, }) => {
+const VisionBoard = ({
+  nodes,
+  materials,
+  cameraMode,
+  setCameraMode,
+  setSelectedVisionPhoto,
+  isMobile = false,
+  triggerVisionBoardMobileOverlay,
+}) => {
+
   const hoverTweenGroup = useRef(new TWEEN.Group());
   const wallRef = useRef();
   const wallHtmlRef = useRef();
+  const hoveredRef = useRef(false);
 
   const photo1Ref = useRef();
   const photo2Ref = useRef();
@@ -206,7 +216,7 @@ const handlePhotoHoverLeave = (photoId) => {
   if (!wallRef.current) return;
 
   if (wallHtmlRef.current) {
-    if (cameraMode === "default" && hovered) {
+    if (!isMobile && cameraMode === "default" && hovered) {
       wallHtmlRef.current.classList.add("active");
     } else {
       wallHtmlRef.current.classList.remove("active");
@@ -215,10 +225,16 @@ const handlePhotoHoverLeave = (photoId) => {
 
   hoverTweenGroup.current.removeAll();
 
-  const targetScale =
-    cameraMode === "default" && hovered
-      ? { x: 1.2, y: 1.2, z: 1.2 }
-      : { x: 1, y: 1, z: 1 };
+  let targetScale;
+
+  if (isMobile && cameraMode === "default") {
+    targetScale = { x: 1, y: 1, z: 1 };
+  } else {
+    targetScale =
+      cameraMode === "default" && hovered
+        ? { x: 1.2, y: 1.2, z: 1.2 }
+        : { x: 1, y: 1, z: 1 };
+  }
 
   const wallTween = new TWEEN.Tween(
     {
@@ -239,7 +255,14 @@ const handlePhotoHoverLeave = (photoId) => {
   return () => {
     wallTween.stop();
   };
-}, [hovered, cameraMode]);
+}, [hovered, cameraMode, isMobile]);
+
+useLayoutEffect(() => {
+  if (cameraMode !== "default") {
+    hoveredRef.current = false;
+    setHovered(false);
+  }
+}, [cameraMode]);
 
  useLayoutEffect(() => {
   Object.entries(photoRefs).forEach(([photoKey, ref]) => {
@@ -279,8 +302,15 @@ const handlePhotoHoverLeave = (photoId) => {
   });
 }, [hoveredPhoto, cameraMode]);
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
   hoverTweenGroup.current.update();
+
+  if (wallRef.current && isMobile && cameraMode === "default") {
+    const t = clock.getElapsedTime();
+    const bounce = 1 + Math.sin(t * 1) * 0.03;
+
+    wallRef.current.scale.set(bounce, bounce, bounce);
+  }
 });
 
   return (
@@ -291,37 +321,72 @@ const handlePhotoHoverLeave = (photoId) => {
   name="vision_board"
   position={[-463.99, 416.66, 18.63]}
   onPointerMissed={() => {
+  if (isMobile) return;
+
   if (cameraMode === "visionBoard") {
     setHoveredPhoto(null);
     setCameraMode("default");
     playSwooshOut();
   }
 }}
-  onPointerEnter={() => {
-    if (cameraMode === "default") {
-      setHovered(true);
-      playHover();
-    }
-  }}
-  onPointerLeave={() => {
-    if (cameraMode === "default") {
-      setHovered(false);
-    }
-  }}
-  onClick={() => {
-    if (cameraMode === "default") {
-      setCameraMode("visionBoard");
-      playSwooshIn();
+onPointerEnter={() => {
+  if (isMobile) return;
+  if (cameraMode !== "default") return;
+  if (hoveredRef.current) return;
+
+  hoveredRef.current = true;
+  setHovered(true);
+  playHover();
+}}
+onPointerLeave={() => {
+  if (isMobile) return;
+  if (cameraMode !== "default") return;
+  if (!hoveredRef.current) return;
+
+  hoveredRef.current = false;
+  setHovered(false);
+}}
+onClick={() => {
+  if (cameraMode !== "default") return;
+
+  if (isMobile) return;
+
+  hoveredRef.current = false;
+  setHovered(false);
+  setHoveredPhoto(null);
+  setCameraMode("visionBoard");
+  playSwooshIn();
+}}
+>
+
+  {!isMobile && (
+  <Html position={[0, 190, 10]} distanceFactor={0.8} center>
+    <div ref={wallHtmlRef} className="label label--primary">
+      Milestones ✨
+    </div>
+  </Html>
+)}
+
+{isMobile && (
+  <mesh
+    name="vision_board_mobile_hitbox"
+    position={[0, 0, 12]}
+    onClick={(e) => {
+      e.stopPropagation();
+
+      if (cameraMode !== "default") return;
+
+      hoveredRef.current = false;
       setHovered(false);
       setHoveredPhoto(null);
-    }
-  }}
->
-  <Html position={[0, 190, 10]} distanceFactor={0.8} center>
-  <div ref={wallHtmlRef} className="label label--primary">
-    Milestones ✨
-  </div>
-</Html>
+      triggerVisionBoardMobileOverlay?.();
+    }}
+  >
+    <boxGeometry args={[420, 320, 40]} />
+    <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+  </mesh>
+)}
+
         {/* PHOTO 1 */}
         <group
   ref={photo1Ref}

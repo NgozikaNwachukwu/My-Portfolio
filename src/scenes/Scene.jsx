@@ -39,6 +39,7 @@ export default function Scene({
   isBookOverlayOpen,
   colorMode = "light",
   isMobile,
+  triggerVisionBoardMobileOverlay,
   ...props
 }) {
   const { nodes, materials } = useSpline(
@@ -281,12 +282,14 @@ export default function Scene({
           <Floor nodes={nodes} materials={materials} />
 
           <VisionBoard
-            nodes={nodes}
-            materials={materials}
-            cameraMode={cameraMode}
-            setCameraMode={setCameraMode}
-            setSelectedVisionPhoto={setSelectedVisionPhoto}
-          />
+  nodes={nodes}
+  materials={materials}
+  cameraMode={cameraMode}
+  setCameraMode={setCameraMode}
+  setSelectedVisionPhoto={setSelectedVisionPhoto}
+  isMobile={isMobile}
+  triggerVisionBoardMobileOverlay={triggerVisionBoardMobileOverlay}
+/>
           <GithubFrame nodes={nodes} materials={materials} isMobile={isMobile} />
           <LinkedinFrame nodes={nodes} materials={materials} isMobile={isMobile} />
 

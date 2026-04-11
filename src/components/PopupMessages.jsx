@@ -32,7 +32,7 @@ const messages = [
     content: (
       <>
         Hovers or sound not working properly? That’s okay! copy and paste the
-        URL above ⬆️ into a new browser tab and it will continue to work.
+        URL of this web page into a new browser tab and it will continue to work.
       </>
     ),
   },
@@ -60,7 +60,10 @@ const messages = [
   },
 ];
 
-export default function PopupMessages({ currentCameraMode }) {
+export default function PopupMessages({
+  currentCameraMode,
+  overlaysBlocked = false,
+}) {
   const [currentMessage, setCurrentMessage] = useState(null);
   const [isRendered, setIsRendered] = useState(false);
   const [animationStage, setAnimationStage] = useState("hidden"); // hidden | entering | visible | exiting
@@ -75,12 +78,17 @@ export default function PopupMessages({ currentCameraMode }) {
     timersRef.current = [];
   };
 
+  const hidePopupImmediately = () => {
+    setAnimationStage("hidden");
+    setIsRendered(false);
+    setCurrentMessage(null);
+  };
+
   const getNextMessage = () => {
     let unseenMessages = messages.filter(
       (message) => !shownMessageIdsRef.current.includes(message.id)
     );
 
-    // if all messages have already shown, reset and start fresh
     if (unseenMessages.length === 0) {
       shownMessageIdsRef.current = [];
       unseenMessages = [...messages];
@@ -98,7 +106,7 @@ export default function PopupMessages({ currentCameraMode }) {
     clearAllTimers();
 
     const showTimer = setTimeout(() => {
-      if (currentCameraMode !== "default") return;
+      if (currentCameraMode !== "default" || overlaysBlocked) return;
 
       const nextMessage = getNextMessage();
 
@@ -123,7 +131,7 @@ export default function PopupMessages({ currentCameraMode }) {
       }, 10150);
 
       const nextCycleTimer = setTimeout(() => {
-        if (currentCameraMode === "default") {
+        if (currentCameraMode === "default" && !overlaysBlocked) {
           runPopupCycle(15000);
         }
       }, 20000);
@@ -135,30 +143,28 @@ export default function PopupMessages({ currentCameraMode }) {
   };
 
   useEffect(() => {
-    if (currentCameraMode === "default") {
+    if (currentCameraMode === "default" && !overlaysBlocked) {
       runPopupCycle(7000);
     } else {
       clearAllTimers();
-      setAnimationStage("hidden");
-      setIsRendered(false);
-      setCurrentMessage(null);
+      hidePopupImmediately();
     }
 
     return () => {
       clearAllTimers();
     };
-  }, [currentCameraMode]);
+  }, [currentCameraMode, overlaysBlocked]);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   if (!isRendered || !currentMessage) return null;
 
