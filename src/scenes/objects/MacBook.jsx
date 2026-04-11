@@ -9,7 +9,13 @@ import swooshInSoundFile from "../../assets/zoom_in.mp3";
 import swooshOutSoundFile from "../../assets/zoom_out.mp3";
 import macStartupSoundFile from "../../assets/mac_startup.mp3";
 
-const MacBook = ({ nodes, materials, cameraMode, setCameraMode, isMobile = false }) => {
+const MacBook = ({
+  nodes,
+  materials,
+  cameraMode,
+  setCameraMode,
+  isMobile = false,
+}) => {
   const visualRef = useRef();
   const labelRef = useRef();
   const hoverTweenGroup = useRef(new TWEEN.Group());
@@ -128,26 +134,26 @@ const MacBook = ({ nodes, materials, cameraMode, setCameraMode, isMobile = false
   };
 
   const handleClick = (e) => {
-    e.stopPropagation();
+  e.stopPropagation();
 
-    if (cameraMode !== "default") return;
+  if (cameraMode !== "default") return;
 
-    hoveredRef.current = false;
-    setHovered(false);
+  hoveredRef.current = false;
+  setHovered(false);
 
-    setCameraMode("macbook");
-    playSwooshIn();
+  setCameraMode("macbook");
+  playSwooshIn();
 
-    setShowScreen(false);
+  setShowScreen(false);
 
-    setTimeout(() => {
-      setShowScreen(true);
-    }, 900);
+  setTimeout(() => {
+    setShowScreen(true);
+  }, 900);
 
-    setTimeout(() => {
-      playStartup();
-    }, 3900);
-  };
+  setTimeout(() => {
+    playStartup();
+  }, 3900);
+};
 
   const handlePointerMissed = () => {
     if (cameraMode === "macbook") {

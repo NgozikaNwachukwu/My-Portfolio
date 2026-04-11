@@ -12,7 +12,7 @@ export default function PortfolioOverlay({ type = "welcome", isMobile = false })
     "Objects that are moving in the room can be tapped on.",
     "Short on time? Tap straight on the MacBook! 💻  it has everything you need to know.",
     "Look out for popup messages that give you more tips on different features about the room 💬",
-    "Once you're done reading, tap the screen and enjoy!",
+    "Once you're done reading this, tap the screen and enjoy!",
   ];
 
   const desktopTips = [
@@ -20,7 +20,7 @@ export default function PortfolioOverlay({ type = "welcome", isMobile = false })
     "Hover over objects in the room to see which ones you can click on.",
     "Short on time? Hover straight over the MacBook! 💻 and click on it! it has everything you need to know.",
     "Look out for popup messages that give you more tips on different features about the room 💬",
-    "Once you're done reading, click the screen and enjoy!",
+    "Once you're done reading this, click the screen and enjoy!",
   ];
 
   const darkModeIntro = ["You are now in dark mode 🌙"];
@@ -28,7 +28,7 @@ export default function PortfolioOverlay({ type = "welcome", isMobile = false })
   const darkModeTips = [
     "Turn your brightness up to better enjoy your experience.",
     "Click on the moon button on the bottom right side of the screen ↘️ to move back into light mode.",
-    "Once you're done reading, click the screen and enjoy!",
+    "Once you're done reading this, click the screen and enjoy!",
   ];
 
   const introLines = isDarkModeOverlay

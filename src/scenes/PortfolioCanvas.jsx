@@ -48,6 +48,7 @@ export default function PortfolioCanvas({ onBackToStart }) {
   const recordPlayerOpenTimerRef = useRef(null);
   const favoriteBookHintTimerRef = useRef(null);
   const favoriteBookOpenTimerRef = useRef(null);
+  const macbookHintTimerRef = useRef(null);
 
   const [selectedVisionPhoto, setSelectedVisionPhoto] = useState(null);
   const [isRecordOverlayOpen, setIsRecordOverlayOpen] = useState(false);
@@ -60,6 +61,7 @@ export default function PortfolioCanvas({ onBackToStart }) {
   const [showVisionBoardMobileOverlay, setShowVisionBoardMobileOverlay] = useState(false);
   const [showRecordPlayerOverlayHint, setShowRecordPlayerOverlayHint] = useState(false);
   const [showFavoriteBookOverlayHint, setShowFavoriteBookOverlayHint] = useState(false);
+  const [showMacbookOverlayHint, setShowMacbookOverlayHint] = useState(false);
   const [hasShownWelcomeOverlay, setHasShownWelcomeOverlay] = useState(false);
   const [hasShownDarkModeOverlay, setHasShownDarkModeOverlay] = useState(false);
 
@@ -100,7 +102,7 @@ export default function PortfolioCanvas({ onBackToStart }) {
         recordPlayerOpenTimerRef.current = setTimeout(() => {
           setIsRecordOverlayOpen(true);
         }, 120);
-      }, 8500);
+      }, 6500);
     }, 1400);
 
     return () => {
@@ -146,7 +148,7 @@ useEffect(() => {
         favoriteBookOpenTimerRef.current = setTimeout(() => {
           setIsBookOverlayOpen(true);
         }, 120);
-      }, 6000);
+      }, 5500);
     }, 1400);
 
     return () => {
@@ -167,6 +169,37 @@ useEffect(() => {
     setIsBookOverlayOpen(false);
   }
 }, [currentCameraMode]);
+
+useEffect(() => {
+  if (macbookHintTimerRef.current) {
+    clearTimeout(macbookHintTimerRef.current);
+    macbookHintTimerRef.current = null;
+  }
+
+  if (currentCameraMode === "macbook") {
+    setShowMacbookOverlayHint(false);
+
+    const showHintTimer = setTimeout(() => {
+      setShowMacbookOverlayHint(true);
+
+      macbookHintTimerRef.current = setTimeout(() => {
+        setShowMacbookOverlayHint(false);
+      }, 5500);
+    }, 5900);
+
+    return () => {
+      clearTimeout(showHintTimer);
+
+      if (macbookHintTimerRef.current) {
+        clearTimeout(macbookHintTimerRef.current);
+        macbookHintTimerRef.current = null;
+      }
+    };
+  } else {
+    setShowMacbookOverlayHint(false);
+  }
+}, [currentCameraMode]);
+
 
   useEffect(() => {
     const unlockAudio = async () => {
@@ -232,7 +265,7 @@ useEffect(() => {
 
   visionBoardMobileOverlayTimerRef.current = setTimeout(() => {
     setShowVisionBoardMobileOverlay(false);
-  }, 5200);
+  }, 5700);
 }, []);
 
   useEffect(() => {
@@ -264,6 +297,10 @@ useEffect(() => {
     if (favoriteBookOpenTimerRef.current) {
       clearTimeout(favoriteBookOpenTimerRef.current);
     }
+
+    if (macbookHintTimerRef.current) {
+  clearTimeout(macbookHintTimerRef.current);
+}
   };
 }, []);
 
@@ -483,6 +520,13 @@ useEffect(() => {
       {showFavoriteBookOverlayHint && (
   <ObjectModeOverlay
     mode="favoriteBook"
+    isMobile={isMobile}
+  />
+)}
+
+{showMacbookOverlayHint && (
+  <ObjectModeOverlay
+    mode="macbook"
     isMobile={isMobile}
   />
 )}

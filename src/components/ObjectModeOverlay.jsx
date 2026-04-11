@@ -8,6 +8,7 @@ export default function ObjectModeOverlay({
   const isVisionBoardMobile = mode === "visionBoardMobile";
   const isRecordPlayer = mode === "recordPlayer";
   const isFavoriteBook = mode === "favoriteBook";
+  const isMacbook = mode === "macbook";
 
   const bodyLines = isRecordPlayer
   ? [
@@ -16,10 +17,14 @@ export default function ObjectModeOverlay({
     ]
   : isFavoriteBook
   ? ['Once done viewing this feature, click on the "X" above to return to the full room.']
+  : isMacbook
+? [
+    'Once done viewing this feature, click anywhere outside this object to return to the full room.',
+  ]
   : isVisionBoardDesktop
   ? ["Click anywhere outside the vision board to return to the full room."]
   : [
-      "Sorry — this feature is currently available on desktop only.",
+      "Sorry, this feature is currently available on desktop only.",
       "For the full Vision Board experience, please open this portfolio on a computer.",
     ];
   return (
@@ -42,26 +47,28 @@ export default function ObjectModeOverlay({
   style={{
     width: "100%",
     maxWidth:
-  (isRecordPlayer || isFavoriteBook) && isMobile
+  (isRecordPlayer || isFavoriteBook || isMacbook) && isMobile
     ? "92vw"
-    : isVisionBoardDesktop || isRecordPlayer
+    : isVisionBoardDesktop || isRecordPlayer || isMacbook
     ? "1100px"
-    : isFavoriteBook
-    ? "760px"
     : "760px",
+
 display: "flex",
+
 flexDirection:
-  (isRecordPlayer || isFavoriteBook) && isMobile
+  (isRecordPlayer || isFavoriteBook || isMacbook) && isMobile
     ? "column"
-    : isVisionBoardDesktop || isRecordPlayer
+    : isVisionBoardDesktop || isRecordPlayer || isMacbook
     ? "row"
     : "column",
+
 alignItems: "center",
 justifyContent: "center",
+
 gap:
-  (isRecordPlayer || isFavoriteBook) && isMobile
+  (isRecordPlayer || isFavoriteBook || isMacbook) && isMobile
     ? "22px"
-    : isVisionBoardDesktop || isRecordPlayer
+    : isVisionBoardDesktop || isRecordPlayer || isMacbook
     ? "410px"
     : isFavoriteBook
     ? "24px"
@@ -76,14 +83,13 @@ gap:
       >
        <div
   style={{
-    flex: (isRecordPlayer || isFavoriteBook) && isMobile ? "unset" : 1,
+    flex: (isRecordPlayer || isFavoriteBook || isMacbook) && isMobile ? "unset" : 1,
+
 maxWidth:
-  (isRecordPlayer || isFavoriteBook) && isMobile
+  (isRecordPlayer || isFavoriteBook || isMacbook) && isMobile
     ? "92vw"
-    : isVisionBoardDesktop || isRecordPlayer
+    : isVisionBoardDesktop || isRecordPlayer || isMacbook
     ? "560px"
-    : isFavoriteBook
-    ? "620px"
     : "620px",
   }}
 >
@@ -125,19 +131,20 @@ maxWidth:
           </div>
         </div>
 
-        {(isVisionBoardDesktop || isRecordPlayer) && (
+       {(isVisionBoardDesktop || isRecordPlayer || isMacbook) && (
   <img
     src={clickOutGif}
     alt="Click outside demonstration"
     style={{
-      width: isRecordPlayer && isMobile ? "150px" : "220px",
+      width:
+        (isRecordPlayer || isMacbook) && isMobile
+          ? "150px"
+          : "220px",
       height: "auto",
       flexShrink: 0,
       marginRight:
-        isRecordPlayer && isMobile
+        (isRecordPlayer || isMacbook) && isMobile
           ? "0px"
-          : isRecordPlayer
-          ? "-200px"
           : "-200px",
     }}
   />
