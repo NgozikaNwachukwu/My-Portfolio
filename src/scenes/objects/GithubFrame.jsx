@@ -2,10 +2,9 @@ import { Html } from "@react-three/drei";
 import { useRef, useState, useLayoutEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as TWEEN from "@tweenjs/tween.js";
-import useSound from "use-sound";
 import "../../index.css";
 
-import hoverOverSoundFile from "../../assets/hover_over_object.mp3";
+import { playHoverSound } from "../../utils/soundManager";
 
 const GitHubFrame = ({ nodes, materials, isMobile = false }) => {
   const visualRef = useRef();
@@ -15,87 +14,85 @@ const GitHubFrame = ({ nodes, materials, isMobile = false }) => {
 
   const [hovered, setHovered] = useState(false);
 
-  const [playHover] = useSound(hoverOverSoundFile, { volume: 0.35 });
-
   useLayoutEffect(() => {
-  if (!visualRef.current) return;
+    if (!visualRef.current) return;
 
-  if (labelRef.current) {
-    if (!isMobile && hovered) {
-      labelRef.current.classList.add("active");
-    } else {
-      labelRef.current.classList.remove("active");
+    if (labelRef.current) {
+      if (!isMobile && hovered) {
+        labelRef.current.classList.add("active");
+      } else {
+        labelRef.current.classList.remove("active");
+      }
     }
-  }
 
-  hoverTweenGroup.current.removeAll();
+    hoverTweenGroup.current.removeAll();
 
-  let targetScale;
+    let targetScale;
 
-  if (isMobile) {
-    targetScale = { x: 1, y: 1, z: 1 };
-  } else {
-    targetScale = hovered
-      ? { x: 1.2, y: 1.2, z: 1.2 }
-      : { x: 1, y: 1, z: 1 };
-  }
+    if (isMobile) {
+      targetScale = { x: 1, y: 1, z: 1 };
+    } else {
+      targetScale = hovered
+        ? { x: 1.2, y: 1.2, z: 1.2 }
+        : { x: 1, y: 1, z: 1 };
+    }
 
-  const tween = new TWEEN.Tween(
-    {
-      x: visualRef.current.scale.x,
-      y: visualRef.current.scale.y,
-      z: visualRef.current.scale.z,
-    },
-    hoverTweenGroup.current
-  )
-    .to(targetScale, 220)
-    .easing(TWEEN.Easing.Quadratic.Out)
-    .onUpdate((obj) => {
-      visualRef.current.scale.set(obj.x, obj.y, obj.z);
-    });
+    const tween = new TWEEN.Tween(
+      {
+        x: visualRef.current.scale.x,
+        y: visualRef.current.scale.y,
+        z: visualRef.current.scale.z,
+      },
+      hoverTweenGroup.current
+    )
+      .to(targetScale, 220)
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .onUpdate((obj) => {
+        visualRef.current.scale.set(obj.x, obj.y, obj.z);
+      });
 
-  tween.start();
+    tween.start();
 
-  return () => {
-    tween.stop();
+    return () => {
+      tween.stop();
+    };
+  }, [hovered, isMobile]);
+
+  useFrame(({ clock }) => {
+    hoverTweenGroup.current.update();
+
+    if (visualRef.current && isMobile) {
+      const t = clock.getElapsedTime();
+      const bounce = 1 + Math.sin(t * 1.9) * 0.25;
+
+      visualRef.current.scale.set(
+        1 * bounce,
+        1 * bounce,
+        1 * bounce
+      );
+    }
+  });
+
+  const handlePointerEnter = (e) => {
+    e.stopPropagation();
+
+    if (isMobile) return;
+    if (hoveredRef.current) return;
+
+    hoveredRef.current = true;
+    setHovered(true);
+    playHoverSound();
   };
-}, [hovered, isMobile]);
 
-useFrame(({ clock }) => {
-  hoverTweenGroup.current.update();
+  const handlePointerLeave = (e) => {
+    e.stopPropagation();
 
-  if (visualRef.current && isMobile) {
-    const t = clock.getElapsedTime();
-    const bounce = 1 + Math.sin(t * 1.9) * 0.25;
+    if (isMobile) return;
+    if (!hoveredRef.current) return;
 
-    visualRef.current.scale.set(
-      1 * bounce,
-      1 * bounce,
-      1 * bounce
-    );
-  }
-});
-
-const handlePointerEnter = (e) => {
-  e.stopPropagation();
-
-  if (isMobile) return;
-  if (hoveredRef.current) return;
-
-  hoveredRef.current = true;
-  setHovered(true);
-  playHover();
-};
-
-const handlePointerLeave = (e) => {
-  e.stopPropagation();
-
-  if (isMobile) return;
-  if (!hoveredRef.current) return;
-
-  hoveredRef.current = false;
-  setHovered(false);
-};
+    hoveredRef.current = false;
+    setHovered(false);
+  };
 
   const handleClick = (e) => {
     e.stopPropagation();

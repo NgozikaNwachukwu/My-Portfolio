@@ -7,8 +7,7 @@ import {
   RoundedBox,
 } from "@react-three/drei";
 import { useRef, useState, useEffect } from "react";
-import useSound from "use-sound";
-import startSoundFile from "../../assets/start.mp3";
+import { playStartSound } from "../../utils/soundManager";
 
 function FaceButton({ label, position, rotation, onClick }) {
   return (
@@ -51,11 +50,10 @@ function FaceButton({ label, position, rotation, onClick }) {
 
 function StartCubeMesh({ phase, onStart }) {
   const meshRef = useRef();
-  const [playStart] = useSound(startSoundFile, { volume: 0.4 });
 
   const handleStartClick = (e) => {
     e.stopPropagation();
-    playStart();
+    playStartSound();
     onStart();
   };
 
@@ -128,17 +126,16 @@ function CameraZoom({ phase }) {
 }
 
 export default function EntranceCube({ phase, onStart, onHideHint }) {
-
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth < 768);
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <Canvas
@@ -154,23 +151,23 @@ useEffect(() => {
       <StartCubeMesh phase={phase} onStart={onStart} />
 
       {phase === "entrance" && (
-  <group
-    position={isMobile ? [0, 1.55, 0] : [0, 1.85, 0]}
-    rotation={[0, -0.12, 0]}
-  >
-    <Text
-      font="/Montserrat-Black.ttf"
-      fontSize={isMobile ? 0.2 : 0.35}
-      maxWidth={isMobile ? 2.8 : undefined}
-      color="#0e1111"
-      anchorX="center"
-      anchorY="middle"
-      letterSpacing={isMobile ? -0.01 : -0.02}
-    >
-      Ngozika Nwachukwu
-    </Text>
-  </group>
-)}
+        <group
+          position={isMobile ? [0, 1.55, 0] : [0, 1.85, 0]}
+          rotation={[0, -0.12, 0]}
+        >
+          <Text
+            font="/Montserrat-Black.ttf"
+            fontSize={isMobile ? 0.2 : 0.35}
+            maxWidth={isMobile ? 2.8 : undefined}
+            color="#0e1111"
+            anchorX="center"
+            anchorY="middle"
+            letterSpacing={isMobile ? -0.01 : -0.02}
+          >
+            Ngozika Nwachukwu
+          </Text>
+        </group>
+      )}
 
       <ContactShadows
         position={[0, -1.2, 0]}
@@ -181,7 +178,7 @@ useEffect(() => {
       />
 
       <Environment files="/Hdr/sunset3.hdr" />
-      
+
       <OrbitControls enableDamping onStart={onHideHint} />
     </Canvas>
   );

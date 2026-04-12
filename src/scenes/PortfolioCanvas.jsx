@@ -5,7 +5,6 @@ import { Howler } from "howler";
 import useSound from "use-sound";
 import Scene from "./Scene";
 import roomPop from "../assets/room_pop.mp3";
-import lightsOnOrOff from "../assets/lights_on_or_off.mp3";
 import VisionBoardOverlay from "../components/VisionBoardOverlay";
 import RecordPlayerOverlay from "../components/RecordPlayerOverlay";
 import FavoriteBookOverlay from "../components/FavoriteBookOverlay";
@@ -13,6 +12,7 @@ import PopupMessages from "../components/PopupMessages";
 import PortfolioOverlay from "../components/PortfolioOverlay";
 import ObjectModeOverlay from "../components/ObjectModeOverlay";
 import song from "../assets/song.mp3";
+import { playLightsToggleSound } from "../utils/soundManager";
 
 function SceneReadySound({ onReady }) {
   const firedRef = useRef(false);
@@ -66,7 +66,6 @@ export default function PortfolioCanvas({ onBackToStart }) {
   const [hasShownDarkModeOverlay, setHasShownDarkModeOverlay] = useState(false);
 
   const [playRoomPop] = useSound(roomPop, { volume: 0.45 });
-  const [playLightsToggle] = useSound(lightsOnOrOff, { volume: 0.5 });
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
@@ -79,127 +78,126 @@ export default function PortfolioCanvas({ onBackToStart }) {
   }, []);
 
   useEffect(() => {
-  if (recordPlayerOverlayTimerRef.current) {
-    clearTimeout(recordPlayerOverlayTimerRef.current);
-    recordPlayerOverlayTimerRef.current = null;
-  }
+    if (recordPlayerOverlayTimerRef.current) {
+      clearTimeout(recordPlayerOverlayTimerRef.current);
+      recordPlayerOverlayTimerRef.current = null;
+    }
 
-  if (recordPlayerOpenTimerRef.current) {
-    clearTimeout(recordPlayerOpenTimerRef.current);
-    recordPlayerOpenTimerRef.current = null;
-  }
+    if (recordPlayerOpenTimerRef.current) {
+      clearTimeout(recordPlayerOpenTimerRef.current);
+      recordPlayerOpenTimerRef.current = null;
+    }
 
-  if (currentCameraMode === "recordPlayer") {
-    setIsRecordOverlayOpen(false);
-    setShowRecordPlayerOverlayHint(false);
+    if (currentCameraMode === "recordPlayer") {
+      setIsRecordOverlayOpen(false);
+      setShowRecordPlayerOverlayHint(false);
 
-    const showHintTimer = setTimeout(() => {
-      setShowRecordPlayerOverlayHint(true);
+      const showHintTimer = setTimeout(() => {
+        setShowRecordPlayerOverlayHint(true);
 
-      recordPlayerOverlayTimerRef.current = setTimeout(() => {
-        setShowRecordPlayerOverlayHint(false);
+        recordPlayerOverlayTimerRef.current = setTimeout(() => {
+          setShowRecordPlayerOverlayHint(false);
 
-        recordPlayerOpenTimerRef.current = setTimeout(() => {
-          setIsRecordOverlayOpen(true);
-        }, 120);
-      }, 4300);
-    }, 1400);
+          recordPlayerOpenTimerRef.current = setTimeout(() => {
+            setIsRecordOverlayOpen(true);
+          }, 120);
+        }, 4300);
+      }, 1400);
 
-    return () => {
-      clearTimeout(showHintTimer);
+      return () => {
+        clearTimeout(showHintTimer);
 
-      if (recordPlayerOverlayTimerRef.current) {
-        clearTimeout(recordPlayerOverlayTimerRef.current);
-        recordPlayerOverlayTimerRef.current = null;
-      }
+        if (recordPlayerOverlayTimerRef.current) {
+          clearTimeout(recordPlayerOverlayTimerRef.current);
+          recordPlayerOverlayTimerRef.current = null;
+        }
 
-      if (recordPlayerOpenTimerRef.current) {
-        clearTimeout(recordPlayerOpenTimerRef.current);
-        recordPlayerOpenTimerRef.current = null;
-      }
-    };
-  } else {
-    setShowRecordPlayerOverlayHint(false);
-    setIsRecordOverlayOpen(false);
-  }
-}, [currentCameraMode]);
+        if (recordPlayerOpenTimerRef.current) {
+          clearTimeout(recordPlayerOpenTimerRef.current);
+          recordPlayerOpenTimerRef.current = null;
+        }
+      };
+    } else {
+      setShowRecordPlayerOverlayHint(false);
+      setIsRecordOverlayOpen(false);
+    }
+  }, [currentCameraMode]);
 
-useEffect(() => {
-  if (favoriteBookHintTimerRef.current) {
-    clearTimeout(favoriteBookHintTimerRef.current);
-    favoriteBookHintTimerRef.current = null;
-  }
+  useEffect(() => {
+    if (favoriteBookHintTimerRef.current) {
+      clearTimeout(favoriteBookHintTimerRef.current);
+      favoriteBookHintTimerRef.current = null;
+    }
 
-  if (favoriteBookOpenTimerRef.current) {
-    clearTimeout(favoriteBookOpenTimerRef.current);
-    favoriteBookOpenTimerRef.current = null;
-  }
+    if (favoriteBookOpenTimerRef.current) {
+      clearTimeout(favoriteBookOpenTimerRef.current);
+      favoriteBookOpenTimerRef.current = null;
+    }
 
-  if (currentCameraMode === "favoriteBook") {
-    setIsBookOverlayOpen(false);
-    setShowFavoriteBookOverlayHint(false);
+    if (currentCameraMode === "favoriteBook") {
+      setIsBookOverlayOpen(false);
+      setShowFavoriteBookOverlayHint(false);
 
-    const showHintTimer = setTimeout(() => {
-      setShowFavoriteBookOverlayHint(true);
+      const showHintTimer = setTimeout(() => {
+        setShowFavoriteBookOverlayHint(true);
 
-      favoriteBookHintTimerRef.current = setTimeout(() => {
-        setShowFavoriteBookOverlayHint(false);
+        favoriteBookHintTimerRef.current = setTimeout(() => {
+          setShowFavoriteBookOverlayHint(false);
 
-        favoriteBookOpenTimerRef.current = setTimeout(() => {
-          setIsBookOverlayOpen(true);
-        }, 120);
-      }, 3600);
-    }, 1400);
+          favoriteBookOpenTimerRef.current = setTimeout(() => {
+            setIsBookOverlayOpen(true);
+          }, 120);
+        }, 3600);
+      }, 1400);
 
-    return () => {
-      clearTimeout(showHintTimer);
+      return () => {
+        clearTimeout(showHintTimer);
 
-      if (favoriteBookHintTimerRef.current) {
-        clearTimeout(favoriteBookHintTimerRef.current);
-        favoriteBookHintTimerRef.current = null;
-      }
+        if (favoriteBookHintTimerRef.current) {
+          clearTimeout(favoriteBookHintTimerRef.current);
+          favoriteBookHintTimerRef.current = null;
+        }
 
-      if (favoriteBookOpenTimerRef.current) {
-        clearTimeout(favoriteBookOpenTimerRef.current);
-        favoriteBookOpenTimerRef.current = null;
-      }
-    };
-  } else {
-    setShowFavoriteBookOverlayHint(false);
-    setIsBookOverlayOpen(false);
-  }
-}, [currentCameraMode]);
+        if (favoriteBookOpenTimerRef.current) {
+          clearTimeout(favoriteBookOpenTimerRef.current);
+          favoriteBookOpenTimerRef.current = null;
+        }
+      };
+    } else {
+      setShowFavoriteBookOverlayHint(false);
+      setIsBookOverlayOpen(false);
+    }
+  }, [currentCameraMode]);
 
-useEffect(() => {
-  if (macbookHintTimerRef.current) {
-    clearTimeout(macbookHintTimerRef.current);
-    macbookHintTimerRef.current = null;
-  }
+  useEffect(() => {
+    if (macbookHintTimerRef.current) {
+      clearTimeout(macbookHintTimerRef.current);
+      macbookHintTimerRef.current = null;
+    }
 
-  if (currentCameraMode === "macbook") {
-    setShowMacbookOverlayHint(false);
+    if (currentCameraMode === "macbook") {
+      setShowMacbookOverlayHint(false);
 
-    const showHintTimer = setTimeout(() => {
-      setShowMacbookOverlayHint(true);
+      const showHintTimer = setTimeout(() => {
+        setShowMacbookOverlayHint(true);
 
-      macbookHintTimerRef.current = setTimeout(() => {
-        setShowMacbookOverlayHint(false);
-      }, 4300);
-    }, 5900);
+        macbookHintTimerRef.current = setTimeout(() => {
+          setShowMacbookOverlayHint(false);
+        }, 4300);
+      }, 5900);
 
-    return () => {
-      clearTimeout(showHintTimer);
+      return () => {
+        clearTimeout(showHintTimer);
 
-      if (macbookHintTimerRef.current) {
-        clearTimeout(macbookHintTimerRef.current);
-        macbookHintTimerRef.current = null;
-      }
-    };
-  } else {
-    setShowMacbookOverlayHint(false);
-  }
-}, [currentCameraMode]);
-
+        if (macbookHintTimerRef.current) {
+          clearTimeout(macbookHintTimerRef.current);
+          macbookHintTimerRef.current = null;
+        }
+      };
+    } else {
+      setShowMacbookOverlayHint(false);
+    }
+  }, [currentCameraMode]);
 
   useEffect(() => {
     const unlockAudio = async () => {
@@ -226,14 +224,14 @@ useEffect(() => {
   }, []);
 
   const dismissTransientOverlays = useCallback(() => {
-  setShowWelcomeOverlay(false);
-  setShowDarkModeOverlay(false);
-}, []);
+    setShowWelcomeOverlay(false);
+    setShowDarkModeOverlay(false);
+  }, []);
 
   useEffect(() => {
-  if (!showWelcomeOverlay && !showDarkModeOverlay) {
-    return;
-  }
+    if (!showWelcomeOverlay && !showDarkModeOverlay) {
+      return;
+    }
 
     const handleDismiss = () => {
       dismissTransientOverlays();
@@ -257,52 +255,52 @@ useEffect(() => {
   ]);
 
   const triggerVisionBoardMobileOverlay = useCallback(() => {
-  setShowVisionBoardMobileOverlay(true);
-
-  if (visionBoardMobileOverlayTimerRef.current) {
-    clearTimeout(visionBoardMobileOverlayTimerRef.current);
-  }
-
-  visionBoardMobileOverlayTimerRef.current = setTimeout(() => {
-    setShowVisionBoardMobileOverlay(false);
-  }, 5700);
-}, []);
-
-  useEffect(() => {
-  return () => {
-    if (welcomeOverlayTimeoutRef.current) {
-      clearTimeout(welcomeOverlayTimeoutRef.current);
-    }
+    setShowVisionBoardMobileOverlay(true);
 
     if (visionBoardMobileOverlayTimerRef.current) {
       clearTimeout(visionBoardMobileOverlayTimerRef.current);
     }
 
-    if (visionBoardDesktopOverlayTimerRef.current) {
-      clearTimeout(visionBoardDesktopOverlayTimerRef.current);
-    }
+    visionBoardMobileOverlayTimerRef.current = setTimeout(() => {
+      setShowVisionBoardMobileOverlay(false);
+    }, 5700);
+  }, []);
 
-    if (recordPlayerOverlayTimerRef.current) {
-      clearTimeout(recordPlayerOverlayTimerRef.current);
-    }
+  useEffect(() => {
+    return () => {
+      if (welcomeOverlayTimeoutRef.current) {
+        clearTimeout(welcomeOverlayTimeoutRef.current);
+      }
 
-    if (recordPlayerOpenTimerRef.current) {
-      clearTimeout(recordPlayerOpenTimerRef.current);
-    }
+      if (visionBoardMobileOverlayTimerRef.current) {
+        clearTimeout(visionBoardMobileOverlayTimerRef.current);
+      }
 
-    if (favoriteBookHintTimerRef.current) {
-      clearTimeout(favoriteBookHintTimerRef.current);
-    }
+      if (visionBoardDesktopOverlayTimerRef.current) {
+        clearTimeout(visionBoardDesktopOverlayTimerRef.current);
+      }
 
-    if (favoriteBookOpenTimerRef.current) {
-      clearTimeout(favoriteBookOpenTimerRef.current);
-    }
+      if (recordPlayerOverlayTimerRef.current) {
+        clearTimeout(recordPlayerOverlayTimerRef.current);
+      }
 
-    if (macbookHintTimerRef.current) {
-  clearTimeout(macbookHintTimerRef.current);
-}
-  };
-}, []);
+      if (recordPlayerOpenTimerRef.current) {
+        clearTimeout(recordPlayerOpenTimerRef.current);
+      }
+
+      if (favoriteBookHintTimerRef.current) {
+        clearTimeout(favoriteBookHintTimerRef.current);
+      }
+
+      if (favoriteBookOpenTimerRef.current) {
+        clearTimeout(favoriteBookOpenTimerRef.current);
+      }
+
+      if (macbookHintTimerRef.current) {
+        clearTimeout(macbookHintTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleSceneReady = useCallback(() => {
     playRoomPop();
@@ -319,37 +317,36 @@ useEffect(() => {
     }, 650);
   }, [playRoomPop, hasShownWelcomeOverlay]);
 
- useEffect(() => {
-  if (visionBoardDesktopOverlayTimerRef.current) {
-    clearTimeout(visionBoardDesktopOverlayTimerRef.current);
-    visionBoardDesktopOverlayTimerRef.current = null;
-  }
-
-  if (currentCameraMode !== "visionBoard") {
-    setShowVisionBoardDesktopOverlay(false);
-    return;
-  }
-
-  if (isMobile) return;
-
-  const showTimer = setTimeout(() => {
-    setShowVisionBoardDesktopOverlay(true);
-
-    visionBoardDesktopOverlayTimerRef.current = setTimeout(() => {
-      setShowVisionBoardDesktopOverlay(false);
-    }, 4600);
-  }, 1450);
-
-  return () => {
-    clearTimeout(showTimer);
-
+  useEffect(() => {
     if (visionBoardDesktopOverlayTimerRef.current) {
       clearTimeout(visionBoardDesktopOverlayTimerRef.current);
       visionBoardDesktopOverlayTimerRef.current = null;
     }
-  };
-}, [currentCameraMode, isMobile]);
 
+    if (currentCameraMode !== "visionBoard") {
+      setShowVisionBoardDesktopOverlay(false);
+      return;
+    }
+
+    if (isMobile) return;
+
+    const showTimer = setTimeout(() => {
+      setShowVisionBoardDesktopOverlay(true);
+
+      visionBoardDesktopOverlayTimerRef.current = setTimeout(() => {
+        setShowVisionBoardDesktopOverlay(false);
+      }, 4600);
+    }, 1450);
+
+    return () => {
+      clearTimeout(showTimer);
+
+      if (visionBoardDesktopOverlayTimerRef.current) {
+        clearTimeout(visionBoardDesktopOverlayTimerRef.current);
+        visionBoardDesktopOverlayTimerRef.current = null;
+      }
+    };
+  }, [currentCameraMode, isMobile]);
 
   const handleZoomIn = () => {
     const cam = sceneCameraRef.current;
@@ -371,7 +368,7 @@ useEffect(() => {
     const nextMode = colorMode === "light" ? "dark" : "light";
 
     setColorMode(nextMode);
-    playLightsToggle();
+    playLightsToggleSound();
 
     if (nextMode === "dark" && !hasShownDarkModeOverlay) {
       setShowWelcomeOverlay(false);
@@ -402,8 +399,8 @@ useEffect(() => {
   };
 
   const overlaysBlocked =
-  showWelcomeOverlay ||
-  showDarkModeOverlay;
+    showWelcomeOverlay ||
+    showDarkModeOverlay;
 
   console.log("selectedVisionPhoto:", selectedVisionPhoto);
 
@@ -518,18 +515,18 @@ useEffect(() => {
       )}
 
       {showFavoriteBookOverlayHint && (
-  <ObjectModeOverlay
-    mode="favoriteBook"
-    isMobile={isMobile}
-  />
-)}
+        <ObjectModeOverlay
+          mode="favoriteBook"
+          isMobile={isMobile}
+        />
+      )}
 
-{showMacbookOverlayHint && (
-  <ObjectModeOverlay
-    mode="macbook"
-    isMobile={isMobile}
-  />
-)}
+      {showMacbookOverlayHint && (
+        <ObjectModeOverlay
+          mode="macbook"
+          isMobile={isMobile}
+        />
+      )}
 
       <PopupMessages
         currentCameraMode={currentCameraMode}
@@ -547,10 +544,11 @@ useEffect(() => {
         albumImage="/images/harry-styles.png"
         audioSrc={song}
       />
+
       {showRecordPlayerOverlayHint && (
         <ObjectModeOverlay
-        mode="recordPlayer"
-        isMobile={isMobile}
+          mode="recordPlayer"
+          isMobile={isMobile}
         />
       )}
 

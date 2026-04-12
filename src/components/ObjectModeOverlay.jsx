@@ -26,7 +26,7 @@ export default function ObjectModeOverlay({
      "Hover over and click on the picture frames to view them!",
   ]
   : [
-      "Sorry, this feature is currently available on desktop only.",
+      "Sorry, this feature is available on desktop only.",
       "For the full Vision Board experience, please open this portfolio on a computer.",
     ];
   return (

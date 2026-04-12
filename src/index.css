@@ -172,10 +172,14 @@ body {
 
 .record-overlay-progress-fill {
   height: 100%;
+  width: 100%;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.88);
-  width: 0%;
-  transition: width 0.1s linear;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .record-overlay-time {

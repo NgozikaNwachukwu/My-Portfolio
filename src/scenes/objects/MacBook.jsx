@@ -4,10 +4,12 @@ import { Html } from "@react-three/drei";
 import * as TWEEN from "@tweenjs/tween.js";
 import useSound from "use-sound";
 
-import hoverOverSoundFile from "../../assets/hover_over_object.mp3";
-import swooshInSoundFile from "../../assets/zoom_in.mp3";
-import swooshOutSoundFile from "../../assets/zoom_out.mp3";
 import macStartupSoundFile from "../../assets/mac_startup.mp3";
+import {
+  playHoverSound,
+  playSwooshInSound,
+  playSwooshOutSound,
+} from "../../utils/soundManager";
 
 const MacBook = ({
   nodes,
@@ -24,9 +26,6 @@ const MacBook = ({
   const [hovered, setHovered] = useState(false);
   const [showScreen, setShowScreen] = useState(false);
 
-  const [playHover] = useSound(hoverOverSoundFile, { volume: 0.35 });
-  const [playSwooshIn] = useSound(swooshInSoundFile, { volume: 0.35 });
-  const [playSwooshOut] = useSound(swooshOutSoundFile, { volume: 0.35 });
   const [playStartup] = useSound(macStartupSoundFile, { volume: 0.5 });
 
   useEffect(() => {
@@ -43,7 +42,7 @@ const MacBook = ({
     };
   }, []);
 
-    useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (!visualRef.current) return;
 
     if (labelRef.current) {
@@ -119,7 +118,7 @@ const MacBook = ({
 
     hoveredRef.current = true;
     setHovered(true);
-    playHover();
+    playHoverSound();
   };
 
   const handlePointerLeave = (e) => {
@@ -134,41 +133,41 @@ const MacBook = ({
   };
 
   const handleClick = (e) => {
-  e.stopPropagation();
+    e.stopPropagation();
 
-  if (cameraMode !== "default") return;
+    if (cameraMode !== "default") return;
 
-  hoveredRef.current = false;
-  setHovered(false);
+    hoveredRef.current = false;
+    setHovered(false);
 
-  setCameraMode("macbook");
-  playSwooshIn();
+    setCameraMode("macbook");
+    playSwooshInSound();
 
-  setShowScreen(false);
+    setShowScreen(false);
 
-  setTimeout(() => {
-    setShowScreen(true);
-  }, 900);
+    setTimeout(() => {
+      setShowScreen(true);
+    }, 900);
 
-  setTimeout(() => {
-    playStartup();
-  }, 3900);
-};
+    setTimeout(() => {
+      playStartup();
+    }, 3900);
+  };
 
   const handlePointerMissed = () => {
     if (cameraMode === "macbook") {
       setCameraMode("default");
-      playSwooshOut();
+      playSwooshOutSound();
     }
   };
 
   return (
     <>
       <group
-  name="macbook_wrapper"
-  position={[66.63, 244.77, -550.33]}
-  onPointerMissed={handlePointerMissed}
->
+        name="macbook_wrapper"
+        position={[66.63, 244.77, -550.33]}
+        onPointerMissed={handlePointerMissed}
+      >
         <Html position={[290, 290, 0]} distanceFactor={3} center>
           <div ref={labelRef} className="label label--secondary">
             About Me & Projects💻
@@ -176,38 +175,37 @@ const MacBook = ({
         </Html>
 
         <mesh
-  name="macbook_hitbox"
-  position={[0, 30, 0]}
-  onPointerEnter={handlePointerEnter}
-  onPointerLeave={handlePointerLeave}
-  onClick={handleClick}
->
-  <boxGeometry args={[100, 100, 100]} />
-  <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-</mesh>
+          name="macbook_hitbox"
+          position={[0, 30, 0]}
+          onPointerEnter={handlePointerEnter}
+          onPointerLeave={handlePointerLeave}
+          onClick={handleClick}
+        >
+          <boxGeometry args={[100, 100, 100]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
 
-<group ref={visualRef} name="macbook" scale={[0.25, 0.27, 0.23]}>
-
-        {cameraMode === "macbook" && showScreen && (
-          <Html
-            transform
-            position={[0.5, 193, -100]}
-            rotation={[-Math.PI / 9, 0, 0]}
-            scale={26.5}
-            zIndexRange={[100, 0]}
-          >
-            <iframe
-              src="/macbook"
-              style={{
-                width: "800px",
-                height: "500px",
-                border: "none",
-                borderRadius: "12px",
-                background: "transparent",
-              }}
-            />
-          </Html>
-        )}
+        <group ref={visualRef} name="macbook" scale={[0.25, 0.27, 0.23]}>
+          {cameraMode === "macbook" && showScreen && (
+            <Html
+              transform
+              position={[0.5, 193, -100]}
+              rotation={[-Math.PI / 9, 0, 0]}
+              scale={26.5}
+              zIndexRange={[100, 0]}
+            >
+              <iframe
+                src="/macbook"
+                style={{
+                  width: "800px",
+                  height: "500px",
+                  border: "none",
+                  borderRadius: "12px",
+                  background: "transparent",
+                }}
+              />
+            </Html>
+          )}
 
             <group name="screen" position={[0.5, 10.73, -120.95]} rotation={[-Math.PI / 9, 0, 0]}>
               <group name="logo" position={[2.73, 193.99, -3.03]}>

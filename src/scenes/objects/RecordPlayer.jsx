@@ -4,11 +4,11 @@ import { useSpring, animated } from "@react-spring/three";
 import { useLayoutEffect, useState } from "react";
 import { Html } from "@react-three/drei";
 import * as TWEEN from "@tweenjs/tween.js";
-import useSound from "use-sound";
-
-import hoverOverSoundFile from "../../assets/hover_over_object.mp3";
-import swooshInSoundFile from "../../assets/zoom_in.mp3";
-import swooshOutSoundFile from "../../assets/zoom_out.mp3";
+import {
+  playHoverSound,
+  playSwooshInSound,
+  playSwooshOutSound,
+} from "../../utils/soundManager";
 
 const RecordPlayer = ({
   nodes,
@@ -25,10 +25,6 @@ const RecordPlayer = ({
   const hoveredRef = useRef(false);
 
   const [hovered, setHovered] = useState(false);
-
-  const [playHover] = useSound(hoverOverSoundFile, { volume: 0.35 });
-  const [playSwooshIn] = useSound(swooshInSoundFile, { volume: 0.35 });
-  const [playSwooshOut] = useSound(swooshOutSoundFile, { volume: 0.35 });
 
   const needleMotion = useSpring({
     from: {
@@ -135,7 +131,7 @@ const RecordPlayer = ({
 
     hoveredRef.current = true;
     setHovered(true);
-    playHover();
+    playHoverSound();
   };
 
   const handlePointerLeave = (e) => {
@@ -154,7 +150,7 @@ const RecordPlayer = ({
 
     if (cameraMode === "default") {
       setCameraMode("recordPlayer");
-      playSwooshIn();
+      playSwooshInSound();
       hoveredRef.current = false;
       setHovered(false);
     }
@@ -164,7 +160,7 @@ const RecordPlayer = ({
     if (cameraMode === "recordPlayer") {
       setCameraMode("default");
       setIsRecordOverlayOpen(false);
-      playSwooshOut();
+      playSwooshOutSound();
     }
   };
 

@@ -131,9 +131,13 @@ const RecordPlayerOverlay = ({ isOpen, onClose, albumImage, audioSrc }) => {
         <div className="record-overlay-progress-wrap">
           <div className="record-overlay-progress-bar">
             <div
-              className="record-overlay-progress-fill"
-              style={{ width: `${progressPercent}%` }}
-            />
+  className="record-overlay-progress-fill"
+  style={{
+    width: "100%",
+    transform: `scaleX(${progressPercent / 100})`,
+    transformOrigin: "left center",
+  }}
+/>
           </div>
 
           <div className="record-overlay-time">

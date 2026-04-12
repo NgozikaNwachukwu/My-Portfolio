@@ -59,7 +59,7 @@ const MacAboutPage = ({ goNext }) => {
 
       {/* RESUME BUTTON */}
       <button
-        onClick={() => window.open("/Ngozika_Resume.pdf", "_blank")}
+        onClick={() => window.open("/Ngozika_Resume2.pdf", "_blank")}
         style={{
           marginTop: "1px",
           padding: "6px 18px",

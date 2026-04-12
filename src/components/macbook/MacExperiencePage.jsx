@@ -44,16 +44,20 @@ const MacExperiencePage = ({ goNext, goBack }) => {
 
         <ul style={{ marginTop: "7px", paddingLeft: "20px", fontFamily: "MontserratSemiBold", fontSize: "11.5px", lineHeight: "1.5"}}>
           <li>
-            Developed frontend components for internal applications using C#, implementing features within feature branches and following version control best practices for clean integration.
+            Worked on the Data Platform Engineering & Enablement, Disaster Recovery team, developing and maintaining
+            user-facing features using C#, .NET within a microservices architecture.
           </li>
           <li>
-            Designed and implemented unit tests using xUnit to meet Helios standards, achieving over 80% code coverage across repositories and improving code reliability.
+            Designed and implemented unit tests using xUnit, achieving 80%+ code coverage and improving reliability across
+            critical business workflows.
           </li>
           <li>
-            Updated database schemas using MariaDB to support evolving business requirements, ensuring alignment between backend data and application logic.
+            Built and maintained REST APIs integrated with MariaDB and frontend components, enabling consistent data flow
+            across multiple systems.
           </li>
           <li>
-            Supported deployment and maintenance workflows using Helios (Docker) and OpenShift/Kubernetes, improving deployment stability by approximately 15%.
+            Supported deployment and scaling using Docker and OpenShift/Kubernetes, improving system stability by 15%
+            and ensuring reliable production releases.
           </li>
         </ul>
       </div>
@@ -78,13 +82,17 @@ const MacExperiencePage = ({ goNext, goBack }) => {
 
         <ul style={{ marginTop: "7px", paddingLeft: "20px", fontFamily: "MontserratSemiBold", fontSize: "12px", lineHeight: "1.5" }}>
           <li>
-            Supporting the Quality Engineering team by contributing to program reviews and process audits, and aligning work with automation frameworks and quality benchmarks defined by the program team.
+            Worked on the US Cash Management Quality Engineering RBC Clear team, developing automated test
+            frameworks using Java, Selenium, Maven, TestNG to validate payment and wire transfer workflows under strict
+            financial business rules.
           </li>
           <li>
-            Applying Scrum and Agile methodologies to coordinate automation deliverables with developers and product owners, improving visibility and on-time execution across squads by 15%.
+            Simulated end-to-end financial transactions, including multi-user approval flows, to verify system behavior across
+            authentication, transaction processing, and approval components.
           </li>
           <li>
-            Monitoring the development and deployment of production applications to ensure quality standards are met and assessing the effectiveness of automation workflows for continuous improvement.
+            Reduced manual testing effort by 45% through automated validation of critical workflows, ensuring reliable
+            behavior of production-level financial systems.
           </li>
         </ul>
       </div>
